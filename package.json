@@ -10,7 +10,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:push": "bash ./scripts/push-supabase-migrations.sh",
+    "db:push:dry-run": "bash ./scripts/push-supabase-migrations.sh --dry-run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
