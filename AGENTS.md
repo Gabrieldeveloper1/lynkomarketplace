@@ -1,10 +1,6 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Instruções de manutenção
+
+- Preserve a separação entre código browser e código server-side.
+- Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` em código cliente, variáveis `VITE_*` ou arquivos versionados.
+- Mantenha as migrações em `supabase/migrations/` em ordem cronológica.
+- Antes de entregar alterações, execute `npm run lint` e `npm run build`.

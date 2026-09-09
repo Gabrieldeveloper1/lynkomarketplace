@@ -23,5 +23,5 @@ Variáveis opcionais:
 - `E2E_PRODUCT` — slug do produto usado no checkout
 - `E2E_VARIANT` — id da variação (opcional)
 
-A sessão autenticada é lida das variáveis `LOVABLE_BROWSER_SUPABASE_*` quando
-existirem.
+A sessão autenticada pode ser fornecida pelas variáveis de ambiente específicas
+do runner de testes, quando existirem. Nunca comite tokens ou chaves privadas.

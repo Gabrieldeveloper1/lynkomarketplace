@@ -346,11 +346,13 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("balance_cents, pending_cents, banned")
+      .select("balance_cents, pending_cents, banned, verified")
       .eq("id", context.userId)
       .maybeSingle();
     if (!profile) throw new Error("Perfil não encontrado.");
     if (profile.banned) throw new Error("Conta suspensa: saques indisponíveis.");
+    if (!profile.verified)
+      throw new Error("Verifique a sua identidade antes de solicitar um saque.");
     if (profile.balance_cents < data.amountCents) throw new Error("Saldo insuficiente.");
 
     await supabaseAdmin

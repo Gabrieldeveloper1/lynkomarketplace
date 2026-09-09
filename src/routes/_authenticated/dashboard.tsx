@@ -1384,6 +1384,8 @@ function WalletTab({
   withdrawals: WithdrawalRow[];
   onDone: () => void;
 }) {
+  const { profile } = useAuth();
+  const verified = !!profile?.verified;
   const [amount, setAmount] = useState("");
   const [pix, setPix] = useState(pixKey);
 
@@ -1413,23 +1415,49 @@ function WalletTab({
           Todo saque passa por aprovação manual da equipe. Você acompanha o status aqui: aguardando análise, aprovado ou
           recusado (nesse caso o valor volta ao saldo).
         </p>
+        {!verified && (
+          <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+            <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
+              🔒 Verifique a sua identidade para poder sacar
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              O saque só é liberado após a verificação automática de identidade. Leva cerca de 2 minutos.
+            </p>
+            <Button asChild className="mt-3 w-fit bg-gradient-primary text-primary-foreground">
+              <Link to="/verificacao">Verificar identidade</Link>
+            </Button>
+          </div>
+        )}
         <div className="mt-4 grid gap-3">
           <div className="grid gap-2">
             <Label htmlFor="w-amount">Valor (R$)</Label>
-            <Input id="w-amount" value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" />
+            <Input
+              id="w-amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              inputMode="decimal"
+              disabled={!verified}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="w-pix">Chave Pix para receber</Label>
-            <Input id="w-pix" value={pix} onChange={(e) => setPix(e.target.value)} placeholder="e-mail, CPF ou aleatória" />
+            <Input
+              id="w-pix"
+              value={pix}
+              onChange={(e) => setPix(e.target.value)}
+              placeholder="e-mail, CPF ou aleatória"
+              disabled={!verified}
+            />
           </div>
           <Button
-            disabled={submit.isPending}
+            disabled={submit.isPending || !verified}
             onClick={() => submit.mutate()}
             className="w-fit bg-gradient-primary text-primary-foreground"
           >
             Pedir saque
           </Button>
         </div>
+
       </div>
 
       <WithdrawalHistory withdrawals={withdrawals} />

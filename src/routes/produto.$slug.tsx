@@ -17,7 +17,6 @@ import {
   Sparkles,
   RefreshCcw,
   Headset,
-
   Package,
   Clock,
   Star,
@@ -76,7 +75,6 @@ function ProdutoPage() {
   const [variantId, setVariantId] = useState<string | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
 
-
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", slug],
     queryFn: async () => {
@@ -127,7 +125,6 @@ function ProdutoPage() {
   const soldOut = product.auto_delivery && displayStock <= 0;
   const maxQty = Math.max(1, Math.min(20, product.auto_delivery ? displayStock : 20));
 
-
   const buy = async () => {
     if (!user) {
       navigate({ to: "/auth", search: { redirect: `/produto/${slug}` } });
@@ -143,7 +140,6 @@ function ProdutoPage() {
     } finally {
       setBuying(false);
     }
-
   };
 
   const chat = async () => {
@@ -153,7 +149,11 @@ function ProdutoPage() {
     }
     if (user.id === product.seller_id) return toast.info("Este anúncio é seu.");
     try {
-      await openConversation({ buyerId: user.id, sellerId: product.seller_id, productId: product.id });
+      await openConversation({
+        buyerId: user.id,
+        sellerId: product.seller_id,
+        productId: product.id,
+      });
       navigate({ to: "/mensagens" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao abrir conversa.");
@@ -173,21 +173,20 @@ function ProdutoPage() {
     }
   };
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:3000";
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
     ...(product.description ? { description: product.description } : {}),
     ...(product.images?.length ? { image: product.images } : {}),
-    url: `https://charm-code-compass.lovable.app/produto/${slug}`,
+    url: `${siteUrl}/produto/${slug}`,
     offers: {
       "@type": "Offer",
       price: (displayPrice / 100).toFixed(2),
       priceCurrency: "BRL",
-      url: `https://charm-code-compass.lovable.app/produto/${slug}`,
-      availability: soldOut
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
+      url: `${siteUrl}/produto/${slug}`,
+      availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
     },
     ...(reviews.length > 0 && rating != null
       ? {
@@ -207,7 +206,10 @@ function ProdutoPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
       {/* Breadcrumb */}
-      <nav aria-label="Trilha" className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+      <nav
+        aria-label="Trilha"
+        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      >
         <Link to="/" className="transition-colors hover:text-foreground">
           Início
         </Link>
@@ -251,7 +253,9 @@ function ProdutoPage() {
               </div>
               <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
                 {product.promoted && (
-                  <Badge className="bg-gradient-primary text-primary-foreground shadow-glow">Destaque</Badge>
+                  <Badge className="bg-gradient-primary text-primary-foreground shadow-glow">
+                    Destaque
+                  </Badge>
                 )}
                 {product.auto_delivery && (
                   <Badge variant="secondary" className="gap-1">
@@ -274,7 +278,9 @@ function ProdutoPage() {
                   <button
                     type="button"
                     aria-label="Imagem anterior"
-                    onClick={() => setActive((i) => (i - 1 + product.images.length) % product.images.length)}
+                    onClick={() =>
+                      setActive((i) => (i - 1 + product.images.length) % product.images.length)
+                    }
                     className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground backdrop-blur transition hover:bg-background"
                   >
                     <ChevronLeft className="h-5 w-5" />
@@ -303,7 +309,9 @@ function ProdutoPage() {
                     aria-label={`Imagem ${i + 1}`}
                     aria-current={i === active}
                     className={`h-14 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition sm:h-16 sm:w-24 ${
-                      i === active ? "border-primary shadow-glow" : "border-border opacity-70 hover:opacity-100"
+                      i === active
+                        ? "border-primary shadow-glow"
+                        : "border-border opacity-70 hover:opacity-100"
                     }`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
@@ -312,7 +320,6 @@ function ProdutoPage() {
               </div>
             )}
           </div>
-
 
           {/* Title block */}
           <div className="mt-6">
@@ -341,21 +348,36 @@ function ProdutoPage() {
           {/* Trust strip */}
           <div className="mt-5 grid gap-2 sm:grid-cols-3">
             {[
-              { icon: Lock, title: "Pagamento protegido", text: "O valor só é liberado após a entrega" },
+              {
+                icon: Lock,
+                title: "Pagamento protegido",
+                text: "O valor só é liberado após a entrega",
+              },
               {
                 icon: Zap,
                 title: product.auto_delivery ? "Entrega imediata" : "Entrega acompanhada",
-                text: product.auto_delivery ? "Receba assim que pagar" : "Suporte durante todo o pedido",
+                text: product.auto_delivery
+                  ? "Receba assim que pagar"
+                  : "Suporte durante todo o pedido",
               },
-              { icon: ShieldCheck, title: "Suporte e disputa", text: "Abra uma denúncia se algo falhar" },
+              {
+                icon: ShieldCheck,
+                title: "Suporte e disputa",
+                text: "Abra uma denúncia se algo falhar",
+              },
             ].map((f) => (
-              <div key={f.title} className="flex items-start gap-2.5 rounded-2xl border border-border bg-card p-3">
+              <div
+                key={f.title}
+                className="flex items-start gap-2.5 rounded-2xl border border-border bg-card p-3"
+              >
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                   <f.icon className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
                   <span className="block text-xs font-semibold">{f.title}</span>
-                  <span className="block text-[11px] leading-snug text-muted-foreground">{f.text}</span>
+                  <span className="block text-[11px] leading-snug text-muted-foreground">
+                    {f.text}
+                  </span>
                 </span>
               </div>
             ))}
@@ -368,16 +390,26 @@ function ProdutoPage() {
               <dl className="mt-3 grid gap-2 text-xs">
                 {[
                   ["Categoria", product.category_slug],
-                  ["Tipo de entrega", product.auto_delivery ? "Automática (imediata)" : "Manual pelo vendedor"],
+                  [
+                    "Tipo de entrega",
+                    product.auto_delivery ? "Automática (imediata)" : "Manual pelo vendedor",
+                  ],
                   [
                     "Disponibilidade",
-                    product.auto_delivery ? `${displayStock} unidade(s) em estoque` : "Sob combinação",
+                    product.auto_delivery
+                      ? `${displayStock} unidade(s) em estoque`
+                      : "Sob combinação",
                   ],
                   ["Vendas concluídas", String(product.sales_count ?? 0)],
                   ["Publicado", timeAgo(product.created_at)],
-                  ...(selectedVariant ? [["Variação escolhida", selectedVariant.name] as const] : []),
+                  ...(selectedVariant
+                    ? [["Variação escolhida", selectedVariant.name] as const]
+                    : []),
                 ].map(([k, v]) => (
-                  <div key={k} className="flex items-start justify-between gap-3 border-b border-border/60 pb-2">
+                  <div
+                    key={k}
+                    className="flex items-start justify-between gap-3 border-b border-border/60 pb-2"
+                  >
                     <dt className="shrink-0 text-muted-foreground">{k}</dt>
                     <dd className="min-w-0 break-words text-right font-medium">{v}</dd>
                   </div>
@@ -418,7 +450,9 @@ function ProdutoPage() {
                     </span>
                     <span className="min-w-0">
                       <span className="block text-xs font-semibold">{b.title}</span>
-                      <span className="block text-[11px] leading-snug text-muted-foreground">{b.text}</span>
+                      <span className="block text-[11px] leading-snug text-muted-foreground">
+                        {b.text}
+                      </span>
                     </span>
                   </li>
                 ))}
@@ -435,7 +469,6 @@ function ProdutoPage() {
           {/* Tabs */}
           <Tabs defaultValue="descricao" className="mt-8">
             <TabsList className="h-auto flex-wrap gap-1">
-
               <TabsTrigger value="descricao">Descrição</TabsTrigger>
               <TabsTrigger value="avaliacoes">Avaliações ({reviews.length})</TabsTrigger>
               <TabsTrigger value="entrega">Entrega e proteção</TabsTrigger>
@@ -444,7 +477,8 @@ function ProdutoPage() {
             <TabsContent value="descricao">
               <div className="rounded-2xl border border-border bg-card p-5">
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                  {product.description || "O vendedor não adicionou uma descrição para este anúncio."}
+                  {product.description ||
+                    "O vendedor não adicionou uma descrição para este anúncio."}
                 </p>
               </div>
             </TabsContent>
@@ -459,7 +493,11 @@ function ProdutoPage() {
                   {reviews.map((r) => {
                     const buyer = (
                       r as {
-                        buyer?: { username?: string; display_name?: string | null; avatar_url?: string | null };
+                        buyer?: {
+                          username?: string;
+                          display_name?: string | null;
+                          avatar_url?: string | null;
+                        };
                       }
                     ).buyer;
                     const name = buyer?.display_name || buyer?.username || "Cliente";
@@ -474,7 +512,9 @@ function ProdutoPage() {
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium">{name}</p>
                             {buyer?.username && (
-                              <p className="truncate text-xs text-muted-foreground">@{buyer.username}</p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                @{buyer.username}
+                              </p>
                             )}
                           </div>
                           {stars ? (
@@ -484,9 +524,13 @@ function ProdutoPage() {
                           ) : (
                             <ThumbsDown className="h-4 w-4 text-destructive" />
                           )}
-                          <span className="ml-auto text-xs text-muted-foreground">{timeAgo(r.created_at)}</span>
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {timeAgo(r.created_at)}
+                          </span>
                         </div>
-                        {r.comment && <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>}
+                        {r.comment && (
+                          <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
+                        )}
                       </div>
                     );
                   })}
@@ -508,8 +552,8 @@ function ProdutoPage() {
                 </p>
                 <p>
                   <strong className="text-foreground">Problemas? </strong>
-                  Fale primeiro com o vendedor pelo chat. Se não resolver, abra uma denúncia e a nossa
-                  equipa analisa o caso.
+                  Fale primeiro com o vendedor pelo chat. Se não resolver, abra uma denúncia e a
+                  nossa equipa analisa o caso.
                 </p>
               </div>
             </TabsContent>
@@ -520,8 +564,12 @@ function ProdutoPage() {
         <aside className="h-fit lg:sticky lg:top-20">
           <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
             <div className="border-b border-border bg-gradient-surface p-5">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Preço final</p>
-              <p className="font-display text-4xl font-extrabold text-primary">{formatPrice(displayPrice * quantity)}</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Preço final
+              </p>
+              <p className="font-display text-4xl font-extrabold text-primary">
+                {formatPrice(displayPrice * quantity)}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {product.auto_delivery
                   ? `${displayStock} em estoque · entrega imediata`
@@ -603,7 +651,9 @@ function ProdutoPage() {
                 size="lg"
               >
                 {buying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {soldOut ? "Esgotado" : `Comprar agora${quantity > 1 ? ` · ${formatPrice(displayPrice * quantity)}` : ""}`}
+                {soldOut
+                  ? "Esgotado"
+                  : `Comprar agora${quantity > 1 ? ` · ${formatPrice(displayPrice * quantity)}` : ""}`}
               </Button>
               <Button onClick={chat} variant="outline" className="mt-2 w-full gap-2">
                 <MessageSquare className="h-4 w-4" /> Falar com o vendedor
@@ -616,9 +666,9 @@ function ProdutoPage() {
 
               <div className="mt-2 flex items-start gap-2 rounded-2xl bg-accent/60 p-3 text-xs text-muted-foreground">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                Pagamento protegido. Escolhe o nível de proteção no checkout — a partir de +{formatPrice(10)}.
+                Pagamento protegido. Escolhe o nível de proteção no checkout — a partir de +
+                {formatPrice(10)}.
               </div>
-
             </div>
           </div>
 
@@ -641,9 +691,13 @@ function ProdutoPage() {
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1 truncate font-semibold">
                   {product.seller?.display_name || product.seller?.username}
-                  {product.seller?.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />}
+                  {product.seller?.verified && (
+                    <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                  )}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">@{product.seller?.username}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  @{product.seller?.username}
+                </p>
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
@@ -651,7 +705,11 @@ function ProdutoPage() {
               targetType="product"
               targetId={product.id}
               trigger={
-                <Button variant="ghost" size="sm" className="mt-3 w-full gap-2 text-muted-foreground">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-3 w-full gap-2 text-muted-foreground"
+                >
                   <Flag className="h-4 w-4" /> Denunciar anúncio
                 </Button>
               }
@@ -678,7 +736,9 @@ function ProdutoPage() {
       <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-xl md:bottom-0 lg:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Preço final</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Preço final
+            </p>
             <p className="truncate font-display text-lg font-extrabold text-primary">
               {formatPrice(displayPrice * quantity)}
             </p>

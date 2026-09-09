@@ -9,52 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VendedoresRouteImport } from './routes/vendedores'
-import { Route as StatusRouteImport } from './routes/status'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ProtecaoRouteImport } from './routes/protecao'
-import { Route as ProdutosRouteImport } from './routes/produtos'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as VendedorSlugRouteImport } from './routes/vendedor.$slug'
-import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
-import { Route as PSlugRouteImport } from './routes/p.$slug'
-import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
-import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
-import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
-import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as ProtecaoRouteImport } from './routes/protecao'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as VendedoresRouteImport } from './routes/vendedores'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as ApiPublicEfiWebhookRouteImport } from './routes/api/public/efi-webhook'
-import { Route as ApiPublicDiditWebhookRouteImport } from './routes/api/public/didit-webhook'
-import { Route as AuthenticatedReciboIdRouteImport } from './routes/_authenticated/recibo.$id'
-import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated/pedido.$id'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
+import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
+import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
+import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
+import { Route as VendedorSlugRouteImport } from './routes/vendedor.$slug'
 import { Route as AuthenticatedCheckoutSlugRouteImport } from './routes/_authenticated/checkout.$slug'
+import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated/pedido.$id'
+import { Route as AuthenticatedReciboIdRouteImport } from './routes/_authenticated/recibo.$id'
+import { Route as ApiPublicDiditWebhookRouteImport } from './routes/api/public/didit-webhook'
+import { Route as ApiPublicEfiWebhookRouteImport } from './routes/api/public/efi-webhook'
 
-const VendedoresRoute = VendedoresRouteImport.update({
-  id: '/vendedores',
-  path: '/vendedores',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatusRoute = StatusRouteImport.update({
-  id: '/status',
-  path: '/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProtecaoRoute = ProtecaoRouteImport.update({
-  id: '/protecao',
-  path: '/protecao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProdutosRoute = ProdutosRouteImport.update({
-  id: '/produtos',
-  path: '/produtos',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -62,50 +46,34 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const ProdutosRoute = ProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ProtecaoRoute = ProtecaoRouteImport.update({
+  id: '/protecao',
+  path: '/protecao',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VendedorSlugRoute = VendedorSlugRouteImport.update({
-  id: '/vendedor/$slug',
-  path: '/vendedor/$slug',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
-  id: '/produto/$slug',
-  path: '/produto/$slug',
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PSlugRoute = PSlugRouteImport.update({
-  id: '/p/$slug',
-  path: '/p/$slug',
+const VendedoresRoute = VendedoresRouteImport.update({
+  id: '/vendedores',
+  path: '/vendedores',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedVerificacaoRoute =
-  AuthenticatedVerificacaoRouteImport.update({
-    id: '/verificacao',
-    path: '/verificacao',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedNotificacoesRoute =
-  AuthenticatedNotificacoesRouteImport.update({
-    id: '/notificacoes',
-    path: '/notificacoes',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
-  id: '/mensagens',
-  path: '/mensagens',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedFavoritosRoute = AuthenticatedFavoritosRouteImport.update({
-  id: '/favoritos',
-  path: '/favoritos',
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -113,30 +81,42 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedFavoritosRoute = AuthenticatedFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicEfiWebhookRoute = ApiPublicEfiWebhookRouteImport.update({
-  id: '/api/public/efi-webhook',
-  path: '/api/public/efi-webhook',
+const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificacoesRoute =
+  AuthenticatedNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedVerificacaoRoute =
+  AuthenticatedVerificacaoRouteImport.update({
+    id: '/verificacao',
+    path: '/verificacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicDiditWebhookRoute = ApiPublicDiditWebhookRouteImport.update({
-  id: '/api/public/didit-webhook',
-  path: '/api/public/didit-webhook',
+const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
+  id: '/produto/$slug',
+  path: '/produto/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedReciboIdRoute = AuthenticatedReciboIdRouteImport.update({
-  id: '/recibo/$id',
-  path: '/recibo/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
-  id: '/pedido/$id',
-  path: '/pedido/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const VendedorSlugRoute = VendedorSlugRouteImport.update({
+  id: '/vendedor/$slug',
+  path: '/vendedor/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCheckoutSlugRoute =
   AuthenticatedCheckoutSlugRouteImport.update({
@@ -144,6 +124,26 @@ const AuthenticatedCheckoutSlugRoute =
     path: '/checkout/$slug',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
+  id: '/pedido/$id',
+  path: '/pedido/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReciboIdRoute = AuthenticatedReciboIdRouteImport.update({
+  id: '/recibo/$id',
+  path: '/recibo/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicDiditWebhookRoute = ApiPublicDiditWebhookRouteImport.update({
+  id: '/api/public/didit-webhook',
+  path: '/api/public/didit-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicEfiWebhookRoute = ApiPublicEfiWebhookRouteImport.update({
+  id: '/api/public/efi-webhook',
+  path: '/api/public/efi-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -307,46 +307,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vendedores': {
-      id: '/vendedores'
-      path: '/vendedores'
-      fullPath: '/vendedores'
-      preLoaderRoute: typeof VendedoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/status': {
-      id: '/status'
-      path: '/status'
-      fullPath: '/status'
-      preLoaderRoute: typeof StatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/protecao': {
-      id: '/protecao'
-      path: '/protecao'
-      fullPath: '/protecao'
-      preLoaderRoute: typeof ProtecaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/produtos': {
-      id: '/produtos'
-      path: '/produtos'
-      fullPath: '/produtos'
-      preLoaderRoute: typeof ProdutosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -356,60 +321,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/vendedor/$slug': {
-      id: '/vendedor/$slug'
-      path: '/vendedor/$slug'
-      fullPath: '/vendedor/$slug'
-      preLoaderRoute: typeof VendedorSlugRouteImport
+    '/produtos': {
+      id: '/produtos'
+      path: '/produtos'
+      fullPath: '/produtos'
+      preLoaderRoute: typeof ProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/produto/$slug': {
-      id: '/produto/$slug'
-      path: '/produto/$slug'
-      fullPath: '/produto/$slug'
-      preLoaderRoute: typeof ProdutoSlugRouteImport
+    '/protecao': {
+      id: '/protecao'
+      path: '/protecao'
+      fullPath: '/protecao'
+      preLoaderRoute: typeof ProtecaoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/p/$slug': {
-      id: '/p/$slug'
-      path: '/p/$slug'
-      fullPath: '/p/$slug'
-      preLoaderRoute: typeof PSlugRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/verificacao': {
-      id: '/_authenticated/verificacao'
-      path: '/verificacao'
-      fullPath: '/verificacao'
-      preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/notificacoes': {
-      id: '/_authenticated/notificacoes'
-      path: '/notificacoes'
-      fullPath: '/notificacoes'
-      preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/vendedores': {
+      id: '/vendedores'
+      path: '/vendedores'
+      fullPath: '/vendedores'
+      preLoaderRoute: typeof VendedoresRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/mensagens': {
-      id: '/_authenticated/mensagens'
-      path: '/mensagens'
-      fullPath: '/mensagens'
-      preLoaderRoute: typeof AuthenticatedMensagensRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/favoritos': {
-      id: '/_authenticated/favoritos'
-      path: '/favoritos'
-      fullPath: '/favoritos'
-      preLoaderRoute: typeof AuthenticatedFavoritosRouteImport
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -419,32 +377,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/favoritos': {
+      id: '/_authenticated/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof AuthenticatedFavoritosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/efi-webhook': {
-      id: '/api/public/efi-webhook'
-      path: '/api/public/efi-webhook'
-      fullPath: '/api/public/efi-webhook'
-      preLoaderRoute: typeof ApiPublicEfiWebhookRouteImport
+    '/_authenticated/mensagens': {
+      id: '/_authenticated/mensagens'
+      path: '/mensagens'
+      fullPath: '/mensagens'
+      preLoaderRoute: typeof AuthenticatedMensagensRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notificacoes': {
+      id: '/_authenticated/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/verificacao': {
+      id: '/_authenticated/verificacao'
+      path: '/verificacao'
+      fullPath: '/verificacao'
+      preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/didit-webhook': {
-      id: '/api/public/didit-webhook'
-      path: '/api/public/didit-webhook'
-      fullPath: '/api/public/didit-webhook'
-      preLoaderRoute: typeof ApiPublicDiditWebhookRouteImport
+    '/produto/$slug': {
+      id: '/produto/$slug'
+      path: '/produto/$slug'
+      fullPath: '/produto/$slug'
+      preLoaderRoute: typeof ProdutoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/recibo/$id': {
-      id: '/_authenticated/recibo/$id'
-      path: '/recibo/$id'
-      fullPath: '/recibo/$id'
-      preLoaderRoute: typeof AuthenticatedReciboIdRouteImport
+    '/vendedor/$slug': {
+      id: '/vendedor/$slug'
+      path: '/vendedor/$slug'
+      fullPath: '/vendedor/$slug'
+      preLoaderRoute: typeof VendedorSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/checkout/$slug': {
+      id: '/_authenticated/checkout/$slug'
+      path: '/checkout/$slug'
+      fullPath: '/checkout/$slug'
+      preLoaderRoute: typeof AuthenticatedCheckoutSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pedido/$id': {
@@ -454,12 +440,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/checkout/$slug': {
-      id: '/_authenticated/checkout/$slug'
-      path: '/checkout/$slug'
-      fullPath: '/checkout/$slug'
-      preLoaderRoute: typeof AuthenticatedCheckoutSlugRouteImport
+    '/_authenticated/recibo/$id': {
+      id: '/_authenticated/recibo/$id'
+      path: '/recibo/$id'
+      fullPath: '/recibo/$id'
+      preLoaderRoute: typeof AuthenticatedReciboIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/didit-webhook': {
+      id: '/api/public/didit-webhook'
+      path: '/api/public/didit-webhook'
+      fullPath: '/api/public/didit-webhook'
+      preLoaderRoute: typeof ApiPublicDiditWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/efi-webhook': {
+      id: '/api/public/efi-webhook'
+      path: '/api/public/efi-webhook'
+      fullPath: '/api/public/efi-webhook'
+      preLoaderRoute: typeof ApiPublicEfiWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
