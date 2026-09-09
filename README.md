@@ -18,6 +18,10 @@ Marketplace de produtos digitais com autenticação, catálogo, conversas, pedid
 
 A aplicação usa a chave publicável no browser e a chave secreta somente em operações server-side administrativas. A separação entre esses dois contextos é obrigatória.
 
+## Imagens
+
+Avatares, banners, imagens de categorias e fotos de produtos são enviados pelo servidor ao ImgBB usando `IMGBB_API_KEY`. Cadastre essa variável somente na Vercel como variável de ambiente server-side; nunca use `VITE_IMGBB_API_KEY`. O upload usa `expiration=0`, e o sistema salva apenas a URL pública da imagem. O `delete_url` retornado pelo ImgBB não é persistido nem usado, portanto o aplicativo não exclui imagens do ImgBB.
+
 ## Migrations
 
 As migrations versionadas estão em `supabase/migrations/` e o projeto está vinculado pelo `supabase/config.toml` ao ref `tocirlbklcrevongolro`.

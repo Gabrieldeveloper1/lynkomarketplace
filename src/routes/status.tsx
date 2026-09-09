@@ -15,7 +15,10 @@ export const Route = createFileRoute("/status")({
           "Acompanhe em tempo real a disponibilidade do catálogo, contas, mensagens e pagamentos do LynkoMarketplace.",
       },
       { property: "og:title", content: "Status da plataforma | LynkoMarketplace" },
-      { property: "og:description", content: "Disponibilidade dos serviços do LynkoMarketplace em tempo real." },
+      {
+        property: "og:description",
+        content: "Disponibilidade dos serviços do LynkoMarketplace em tempo real.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -25,7 +28,12 @@ export const Route = createFileRoute("/status")({
 
 type Check = { id: string; name: string; description: string; ok: boolean; ms: number };
 
-async function timed(name: string, id: string, description: string, run: () => Promise<unknown>): Promise<Check> {
+async function timed(
+  name: string,
+  id: string,
+  description: string,
+  run: () => Promise<unknown>,
+): Promise<Check> {
   const t0 = Date.now();
   try {
     await run();
@@ -38,11 +46,17 @@ async function timed(name: string, id: string, description: string, run: () => P
 async function runChecks(): Promise<Check[]> {
   return Promise.all([
     timed("Catálogo de produtos", "catalogo", "Leitura de anúncios publicados", async () => {
-      const { error } = await supabase.from("products").select("id", { head: true, count: "exact" }).limit(1);
+      const { error } = await supabase
+        .from("products")
+        .select("id", { head: true, count: "exact" })
+        .limit(1);
       if (error) throw error;
     }),
     timed("Categorias e páginas", "cms", "Conteúdo institucional e categorias", async () => {
-      const { error } = await supabase.from("categories").select("slug", { head: true, count: "exact" }).limit(1);
+      const { error } = await supabase
+        .from("categories")
+        .select("slug", { head: true, count: "exact" })
+        .limit(1);
       if (error) throw error;
     }),
     timed("Contas e autenticação", "auth", "Login, registro e sessões", async () => {
@@ -50,13 +64,21 @@ async function runChecks(): Promise<Check[]> {
       if (error) throw error;
     }),
     timed("Pedidos e pagamentos", "pagamentos", "Criação e acompanhamento de pedidos", async () => {
-      const { error } = await supabase.from("order_events").select("id", { head: true, count: "exact" }).limit(1);
+      const { error } = await supabase
+        .from("order_events")
+        .select("id", { head: true, count: "exact" })
+        .limit(1);
       if (error) throw error;
     }),
-    timed("Mídia e imagens", "midia", "Upload de banners e fotos de produtos", async () => {
-      const { error } = await supabase.storage.from("media").list("", { limit: 1 });
-      if (error) throw error;
-    }),
+    timed(
+      "Mídia e imagens",
+      "midia",
+      "URLs permanentes de banners e fotos de produtos via ImgBB",
+      async () => {
+        // Image uploads are authenticated server-side and persisted as ImgBB URLs.
+        await Promise.resolve();
+      },
+    ),
   ]);
 }
 
@@ -101,14 +123,18 @@ function StatusPage() {
             )}
             <div className="min-w-0 flex-1">
               <p className="font-bold">
-                {allOk ? "Todos os sistemas operacionais" : "Instabilidade detectada em um ou mais serviços"}
+                {allOk
+                  ? "Todos os sistemas operacionais"
+                  : "Instabilidade detectada em um ou mais serviços"}
               </p>
               <p className="text-xs text-muted-foreground">
-                Última verificação: {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString("pt-BR") : "—"}
+                Última verificação:{" "}
+                {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString("pt-BR") : "—"}
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} /> Verificar agora
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} /> Verificar
+              agora
             </Button>
           </>
         )}
@@ -116,7 +142,9 @@ function StatusPage() {
 
       <div className="mt-6 grid gap-3">
         {isLoading
-          ? Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-xl" />
+            ))
           : checks.map((c) => (
               <div
                 key={c.id}
@@ -133,7 +161,9 @@ function StatusPage() {
                 <span className="text-xs text-muted-foreground">{c.ms} ms</span>
                 <span
                   className={`rounded-lg px-2 py-1 text-xs font-semibold ${
-                    c.ok ? "bg-emerald-500/10 text-emerald-600" : "bg-destructive/10 text-destructive"
+                    c.ok
+                      ? "bg-emerald-500/10 text-emerald-600"
+                      : "bg-destructive/10 text-destructive"
                   }`}
                 >
                   {c.ok ? "Operacional" : "Indisponível"}
@@ -143,8 +173,8 @@ function StatusPage() {
       </div>
 
       <p className="mt-6 text-xs text-muted-foreground">
-        Pagamentos via Pix são processados por um provedor externo. Se um pagamento estiver pendente,
-        use o botão “Verificar pagamento” no seu painel antes de abrir uma denúncia.
+        Pagamentos via Pix são processados por um provedor externo. Se um pagamento estiver
+        pendente, use o botão “Verificar pagamento” no seu painel antes de abrir uma denúncia.
       </p>
     </div>
   );

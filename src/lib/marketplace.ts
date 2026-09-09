@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { uploadImage } from "@/lib/media.functions";
 
 export type Profile = Tables<"profiles">;
 export type Product = Tables<"products">;
@@ -122,14 +123,17 @@ export function ratingOf(reviews: { positive: boolean }[]) {
 }
 
 export async function uploadMedia(userId: string, file: File) {
-  const path = `${userId}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "")}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false });
-  if (error) throw error;
-  const { data, error: signError } = await supabase.storage
-    .from("media")
-    .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-  if (signError) throw signError;
-  return data.signedUrl;
+  void userId;
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",").pop() ?? "");
+    reader.onerror = () => reject(reader.error ?? new Error("Não foi possível ler a imagem."));
+    reader.readAsDataURL(file);
+  });
+  const { url } = await uploadImage({
+    data: { base64, filename: file.name, contentType: file.type },
+  });
+  return url;
 }
 
 export type ProductVariant = Tables<"product_variants">;
@@ -182,7 +186,9 @@ export async function fetchSitePage(slug: string) {
 export async function fetchOrder(orderId: string) {
   const { data, error } = await supabase
     .from("orders")
-    .select("*, product:products!orders_product_id_fkey(title, slug, images, auto_delivery), seller:profiles!orders_seller_id_fkey(username, display_name, avatar_url, verified)")
+    .select(
+      "*, product:products!orders_product_id_fkey(title, slug, images, auto_delivery), seller:profiles!orders_seller_id_fkey(username, display_name, avatar_url, verified)",
+    )
     .eq("id", orderId)
     .maybeSingle();
   if (error) throw error;
@@ -202,7 +208,10 @@ export async function fetchOrderEvents(orderId: string) {
 /* ------------------------------ Favoritos ------------------------------ */
 
 export async function fetchFavoriteIds(userId: string) {
-  const { data, error } = await supabase.from("favorites").select("product_id").eq("user_id", userId);
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("product_id")
+    .eq("user_id", userId);
   if (error) throw error;
   return (data ?? []).map((r) => r.product_id as string);
 }
@@ -221,7 +230,9 @@ export async function fetchFavoriteProducts(userId: string) {
 
 export async function setFavorite(userId: string, productId: string, on: boolean) {
   if (on) {
-    const { error } = await supabase.from("favorites").insert({ user_id: userId, product_id: productId } as never);
+    const { error } = await supabase
+      .from("favorites")
+      .insert({ user_id: userId, product_id: productId } as never);
     if (error && error.code !== "23505") throw error;
   } else {
     const { error } = await supabase
