@@ -1755,7 +1755,7 @@ function ProfileTab({ onSaved }: { onSaved: () => void }) {
           <Input
             id="pf-avatar"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff"
             onChange={(e) => uploadImage(e.target.files?.[0], "avatar_url")}
           />
         </div>
@@ -1764,7 +1764,7 @@ function ProfileTab({ onSaved }: { onSaved: () => void }) {
           <Input
             id="pf-banner"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff"
             onChange={(e) => uploadImage(e.target.files?.[0], "banner_url")}
           />
         </div>

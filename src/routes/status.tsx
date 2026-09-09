@@ -73,10 +73,10 @@ async function runChecks(): Promise<Check[]> {
     timed(
       "Mídia e imagens",
       "midia",
-      "URLs permanentes de banners e fotos de produtos via ImgBB",
+      "Bucket público do Supabase para imagens permanentes",
       async () => {
-        // Image uploads are authenticated server-side and persisted as ImgBB URLs.
-        await Promise.resolve();
+        const { error } = await supabase.storage.from("media").list("", { limit: 1 });
+        if (error) throw error;
       },
     ),
   ]);

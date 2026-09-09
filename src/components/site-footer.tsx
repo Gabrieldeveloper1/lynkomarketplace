@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 import { fetchSitePages } from "@/lib/marketplace";
-import logoAsset from "@/assets/lynko-market-logo.png.asset.json";
+
+const BRAND_LOGO_URL = "https://i.ibb.co/DDk11nFh/lynko-market-logo.png";
 
 export function SiteFooter() {
   const { data: pages = [] } = useQuery({ queryKey: ["site-pages"], queryFn: fetchSitePages });
@@ -20,12 +21,15 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <img src={logoAsset.url} alt="Lynko Market" className="h-9 w-auto invert dark:invert-0" />
+            <img src={BRAND_LOGO_URL} alt="Lynko Market" className="h-9 w-auto" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Plataforma para comprar e vender contas, itens digitais e serviços com intermédio
               seguro, suporte e acompanhamento de entrega.
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">CNPJ: 00.000.000/0001-00</p>
+            <p className="mt-4 text-sm font-medium text-foreground">
+              Andrey Jairo dos Santos Silva
+            </p>
+            <p className="text-sm text-muted-foreground">CNPJ: 63.003.956/0001-67</p>
             <a
               href="https://discord.com"
               target="_blank"
@@ -87,7 +91,11 @@ export function SiteFooter() {
             <ul className="mt-4 grid gap-2.5 text-sm text-muted-foreground">
               {legalLinks.map((pg) => (
                 <li key={pg.slug}>
-                  <Link to="/p/$slug" params={{ slug: pg.slug }} className="transition-colors hover:text-foreground">
+                  <Link
+                    to="/p/$slug"
+                    params={{ slug: pg.slug }}
+                    className="transition-colors hover:text-foreground"
+                  >
                     {pg.title}
                   </Link>
                 </li>

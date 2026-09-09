@@ -20,7 +20,7 @@ A aplicação usa a chave publicável no browser e a chave secreta somente em op
 
 ## Imagens
 
-Avatares, banners, imagens de categorias e fotos de produtos são enviados pelo servidor ao ImgBB usando `IMGBB_API_KEY`. Cadastre essa variável somente na Vercel como variável de ambiente server-side; nunca use `VITE_IMGBB_API_KEY`. O upload usa `expiration=0`, e o sistema salva apenas a URL pública da imagem. O `delete_url` retornado pelo ImgBB não é persistido nem usado, portanto o aplicativo não exclui imagens do ImgBB.
+Avatares, banners, imagens de categorias e fotos de produtos são enviados ao bucket público `media` do seu próprio Supabase. A migration `20260909152000_create_public_media_bucket.sql` cria o bucket automaticamente, permite até 50 MB por arquivo, aceita PNG, JPG, WEBP, AVIF, SVG, BMP e TIFF, e bloqueia GIFs. As URLs públicas ficam persistidas no banco e não são removidas pelo aplicativo.
 
 ## Migrations
 

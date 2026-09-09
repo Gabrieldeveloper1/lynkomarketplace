@@ -1,6 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { uploadImage } from "@/lib/media.functions";
 
 export type Profile = Tables<"profiles">;
 export type Product = Tables<"products">;
@@ -123,17 +122,33 @@ export function ratingOf(reviews: { positive: boolean }[]) {
 }
 
 export async function uploadMedia(userId: string, file: File) {
-  void userId;
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(",").pop() ?? "");
-    reader.onerror = () => reject(reader.error ?? new Error("Não foi possível ler a imagem."));
-    reader.readAsDataURL(file);
+  const allowedTypes = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/avif",
+    "image/svg+xml",
+    "image/bmp",
+    "image/tiff",
+  ]);
+  if (file.type === "image/gif" || !allowedTypes.has(file.type)) {
+    throw new Error(
+      "Formato não suportado. Envie PNG, JPG, WEBP, AVIF, SVG, BMP ou TIFF; GIF não é permitido.",
+    );
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    throw new Error("A imagem deve ter no máximo 50 MB.");
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+  const path = `${userId}/${crypto.randomUUID()}-${safeName}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, {
+    upsert: false,
+    contentType: file.type,
+    cacheControl: "31536000",
   });
-  const { url } = await uploadImage({
-    data: { base64, filename: file.name, contentType: file.type },
-  });
-  return url;
+  if (error) throw error;
+  return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
 }
 
 export type ProductVariant = Tables<"product_variants">;

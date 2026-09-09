@@ -222,6 +222,54 @@
   box-shadow: var(--shadow-card);
 }
 
+/* Toasts: o fechamento fica dentro do card e a saída é curta e suave. */
+.lynko-toast {
+  position: relative !important;
+  overflow: visible !important;
+  animation: lynko-toast-in 180ms ease-out;
+}
+
+.lynko-toast[data-removed="true"] {
+  animation: lynko-toast-out 180ms ease-in forwards;
+}
+
+.lynko-toast [data-close-button] {
+  position: absolute !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  left: auto !important;
+  z-index: 20 !important;
+  display: grid !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  place-items: center !important;
+  border-radius: 0.5rem !important;
+}
+
+@keyframes lynko-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lynko-toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.35rem) scale(0.98);
+  }
+}
+
 
 @keyframes lynko-marquee {
   from {

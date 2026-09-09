@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Save, Trash2, Upload, Image as ImageIcon, Shapes, Loader2, Eye, EyeOff, Globe } from "lucide-react";
+import {
+  Plus,
+  Save,
+  Trash2,
+  Upload,
+  Image as ImageIcon,
+  Shapes,
+  Loader2,
+  Eye,
+  EyeOff,
+  Globe,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,9 +51,23 @@ type PageRow = {
 };
 
 const ICONS = [
-  "package", "user", "gamepad-2", "coins", "play", "app-window",
-  "credit-card", "wrench", "at-sign", "music", "tv", "shield",
-  "key", "gift", "bot", "smartphone", "globe",
+  "package",
+  "user",
+  "gamepad-2",
+  "coins",
+  "play",
+  "app-window",
+  "credit-card",
+  "wrench",
+  "at-sign",
+  "music",
+  "tv",
+  "shield",
+  "key",
+  "gift",
+  "bot",
+  "smartphone",
+  "globe",
 ];
 
 const EMPTY_CAT: CategoryRow = {
@@ -76,7 +101,6 @@ export function AdminContent() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
-
 
   const upload = async (file: File) => {
     if (!user || !cat) return;
@@ -148,8 +172,6 @@ export function AdminContent() {
       setSaving(false);
     }
   };
-
-
 
   const removePage = async (slug: string) => {
     try {
@@ -238,7 +260,9 @@ export function AdminContent() {
                       type="button"
                       onClick={() => setCat({ ...cat, icon: i })}
                       className={`grid h-9 w-9 place-items-center rounded-lg border transition ${
-                        cat.icon === i ? "border-primary bg-primary/10 text-primary" : "border-border"
+                        cat.icon === i
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border"
                       }`}
                     >
                       <CategoryVisual category={{ name: i, icon: i }} className="h-4 w-4" />
@@ -256,10 +280,14 @@ export function AdminContent() {
                     placeholder="https://…"
                   />
                   <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm">
-                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff"
                       className="hidden"
                       onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
                     />
@@ -270,9 +298,16 @@ export function AdminContent() {
 
             <div className="mt-4 flex gap-2">
               <Button onClick={submitCat} disabled={saving} className="gap-1.5">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Guardar
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}{" "}
+                Guardar
               </Button>
-              <Button variant="ghost" onClick={() => setCat(null)}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => setCat(null)}>
+                Cancelar
+              </Button>
             </div>
           </div>
         )}
@@ -294,7 +329,11 @@ export function AdminContent() {
                 </p>
               </div>
               <Badge variant="outline" className="gap-1">
-                {c.display_mode === "image" ? <ImageIcon className="h-3 w-3" /> : <Shapes className="h-3 w-3" />}
+                {c.display_mode === "image" ? (
+                  <ImageIcon className="h-3 w-3" />
+                ) : (
+                  <Shapes className="h-3 w-3" />
+                )}
                 {c.display_mode === "image" ? "Imagem" : "Ícone"}
               </Badge>
               <Button size="sm" variant="outline" onClick={() => setCat(c as CategoryRow)}>
@@ -327,7 +366,10 @@ export function AdminContent() {
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label>Título</Label>
-                <Input value={page.title} onChange={(e) => setPage({ ...page, title: e.target.value })} />
+                <Input
+                  value={page.title}
+                  onChange={(e) => setPage({ ...page, title: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Slug (URL)</Label>
@@ -339,7 +381,10 @@ export function AdminContent() {
               </div>
               <div className="md:col-span-2">
                 <Label>Resumo</Label>
-                <Input value={page.summary} onChange={(e) => setPage({ ...page, summary: e.target.value })} />
+                <Input
+                  value={page.summary}
+                  onChange={(e) => setPage({ ...page, summary: e.target.value })}
+                />
               </div>
               <div className="md:col-span-2">
                 <Label>Conteúdo (suporta ## títulos e - listas)</Label>
@@ -367,12 +412,24 @@ export function AdminContent() {
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button onClick={submitPage} disabled={saving} className="gap-1.5">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Guardar
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}{" "}
+                Guardar
               </Button>
-              <Button variant="outline" className="gap-1.5" onClick={() => setShowPreview((v) => !v)}>
-                <Eye className="h-4 w-4" /> {showPreview ? "Ocultar pré-visualização" : "Pré-visualizar"}
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setShowPreview((v) => !v)}
+              >
+                <Eye className="h-4 w-4" />{" "}
+                {showPreview ? "Ocultar pré-visualização" : "Pré-visualizar"}
               </Button>
-              <Button variant="ghost" onClick={() => setPage(null)}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => setPage(null)}>
+                Cancelar
+              </Button>
             </div>
 
             {showPreview && (
@@ -381,7 +438,9 @@ export function AdminContent() {
                   Pré-visualização · /p/{page.slug || "slug"}
                 </p>
                 <h3 className="text-xl font-extrabold">{page.title || "Sem título"}</h3>
-                {page.summary && <p className="mt-1 text-sm text-muted-foreground">{page.summary}</p>}
+                {page.summary && (
+                  <p className="mt-1 text-sm text-muted-foreground">{page.summary}</p>
+                )}
                 <div className="mt-4">
                   <PagePreview text={page.content} />
                 </div>
@@ -392,10 +451,15 @@ export function AdminContent() {
 
         <div className="grid gap-2">
           {(data?.pages ?? []).map((p) => (
-            <div key={p.slug} className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
+            <div
+              key={p.slug}
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3"
+            >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{p.title}</p>
-                <p className="truncate text-xs text-muted-foreground">/p/{p.slug} · {p.summary}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  /p/{p.slug} · {p.summary}
+                </p>
               </div>
               <Badge variant={p.published ? "secondary" : "outline"}>
                 {p.published ? "Publicada" : "Rascunho"}
@@ -411,9 +475,18 @@ export function AdminContent() {
                 {p.published ? "Despublicar" : "Publicar"}
               </Button>
               <Button size="sm" variant="outline" asChild>
-                <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer">Ver</a>
+                <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer">
+                  Ver
+                </a>
               </Button>
-              <Button size="sm" variant="outline" onClick={() => { setPage(p as PageRow); setShowPreview(true); }}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setPage(p as PageRow);
+                  setShowPreview(true);
+                }}
+              >
                 Editar
               </Button>
               <Button size="sm" variant="ghost" onClick={() => removePage(p.slug)}>
@@ -422,7 +495,6 @@ export function AdminContent() {
             </div>
           ))}
         </div>
-
       </section>
     </div>
   );
@@ -436,9 +508,24 @@ function PagePreview({ text }: { text: string }) {
       {lines.map((line, i) => {
         const t = line.trim();
         if (!t) return null;
-        if (t.startsWith("### ")) return <h3 key={i} className="pt-3 text-base font-bold">{t.slice(4)}</h3>;
-        if (t.startsWith("## ")) return <h2 key={i} className="pt-4 text-lg font-extrabold">{t.slice(3)}</h2>;
-        if (t.startsWith("# ")) return <h2 key={i} className="pt-4 text-xl font-extrabold">{t.slice(2)}</h2>;
+        if (t.startsWith("### "))
+          return (
+            <h3 key={i} className="pt-3 text-base font-bold">
+              {t.slice(4)}
+            </h3>
+          );
+        if (t.startsWith("## "))
+          return (
+            <h2 key={i} className="pt-4 text-lg font-extrabold">
+              {t.slice(3)}
+            </h2>
+          );
+        if (t.startsWith("# "))
+          return (
+            <h2 key={i} className="pt-4 text-xl font-extrabold">
+              {t.slice(2)}
+            </h2>
+          );
         if (t.startsWith("- "))
           return (
             <p key={i} className="flex gap-2 pl-2 text-sm text-muted-foreground">
@@ -446,7 +533,11 @@ function PagePreview({ text }: { text: string }) {
               {t.slice(2)}
             </p>
           );
-        return <p key={i} className="text-sm leading-relaxed text-muted-foreground">{t}</p>;
+        return (
+          <p key={i} className="text-sm leading-relaxed text-muted-foreground">
+            {t}
+          </p>
+        );
       })}
     </div>
   );
