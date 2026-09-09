@@ -24,7 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { slugify } from "@/lib/format";
-import logoAsset from "@/assets/lynko-market-logo.png.asset.json";
+const BRAND_LOGO_URL = "https://i.ibb.co/DDk11nFh/lynko-market-logo.png";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ redirect: z.string().optional() }),
@@ -37,7 +37,10 @@ export const Route = createFileRoute("/auth")({
           "Aceda à sua conta LynkoMarketplace para comprar, vender e gerir a sua loja digital com segurança.",
       },
       { property: "og:title", content: "Entrar ou criar conta | LynkoMarketplace" },
-      { property: "og:description", content: "Login e registo seguro no marketplace LynkoMarketplace." },
+      {
+        property: "og:description",
+        content: "Login e registo seguro no marketplace LynkoMarketplace.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -147,6 +150,20 @@ function AuthPage() {
     navigate({ to: search.redirect ?? "/dashboard" });
   };
 
+  const signInWithGoogle = async () => {
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth${search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""}`,
+      },
+    });
+    if (error) {
+      setBusy(false);
+      return toast.error(error.message);
+    }
+  };
+
   const recover = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const email = String(new FormData(e.currentTarget).get("email")).trim();
@@ -170,7 +187,8 @@ function AuthPage() {
     if (username.length < 3) return toast.error("Nome de usuário inválido (mínimo 3 caracteres).");
     if (password.length < 6) return toast.error("A senha precisa de pelo menos 6 caracteres.");
     if (password !== String(form.get("confirm"))) return toast.error("As senhas não coincidem.");
-    if (!accepted) return toast.error("É preciso aceitar os Termos de Uso e a Política de Privacidade.");
+    if (!accepted)
+      return toast.error("É preciso aceitar os Termos de Uso e a Política de Privacidade.");
 
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
@@ -201,7 +219,10 @@ function AuthPage() {
 
   return (
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-hero opacity-80" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-hero opacity-80"
+        aria-hidden
+      />
       <div
         className="pointer-events-none absolute -left-40 top-0 h-[26rem] w-[26rem] rounded-full bg-primary/20 blur-3xl"
         aria-hidden
@@ -213,11 +234,13 @@ function AuthPage() {
           </span>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight xl:text-5xl">
             Compre e venda digital com{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">proteção total</span>
+            <span className="bg-gradient-primary bg-clip-text text-transparent">
+              proteção total
+            </span>
           </h1>
           <p className="mt-4 max-w-md text-muted-foreground">
-            Contas, chaves, gift cards e serviços digitais. Custódia do pagamento, entrega automática e
-            mediação humana sempre que precisar.
+            Contas, chaves, gift cards e serviços digitais. Custódia do pagamento, entrega
+            automática e mediação humana sempre que precisar.
           </p>
 
           <ul className="mt-8 grid gap-3">
@@ -253,11 +276,7 @@ function AuthPage() {
 
         <div className="mx-auto w-full max-w-md rounded-3xl border border-border bg-card/90 p-6 shadow-card backdrop-blur-xl sm:p-8">
           <div className="mb-6">
-            <img
-              src={logoAsset.url}
-              alt="Lynko Market"
-              className="h-8 w-auto invert dark:invert-0"
-            />
+            <img src={BRAND_LOGO_URL} alt="Lynko Market" className="h-8 w-auto" />
             <h2 className="mt-4 text-xl font-extrabold tracking-tight">
               {mode === "recover" ? "Recuperar a sua senha" : "Aceder ao LynkoMarketplace"}
             </h2>
@@ -276,8 +295,8 @@ function AuthPage() {
               <div>
                 <p className="font-semibold">Confirme o seu e-mail</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Enviámos um link de confirmação para <strong>{signupSent}</strong>. Abra a mensagem para
-                  ativar a conta e depois volte aqui para entrar.
+                  Enviámos um link de confirmação para <strong>{signupSent}</strong>. Abra a
+                  mensagem para ativar a conta e depois volte aqui para entrar.
                 </p>
               </div>
               <Button variant="outline" onClick={() => setSignupSent(null)}>
@@ -291,8 +310,8 @@ function AuthPage() {
                   <CheckCircle2 className="h-6 w-6" />
                 </span>
                 <p className="text-sm text-muted-foreground">
-                  Se existir uma conta com esse e-mail, o link de recuperação já está a caminho. Verifique
-                  também a pasta de spam.
+                  Se existir uma conta com esse e-mail, o link de recuperação já está a caminho.
+                  Verifique também a pasta de spam.
                 </p>
                 <Button
                   variant="outline"
@@ -339,6 +358,25 @@ function AuthPage() {
 
               <TabsContent value="login" className="mt-6">
                 <form onSubmit={signIn} className="grid gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={signInWithGoogle}
+                    className="w-full gap-2"
+                  >
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-xs font-extrabold text-[#4285F4]">
+                      G
+                    </span>
+                    Continuar com Google
+                  </Button>
+                  <div className="relative py-1 text-center text-[11px] text-muted-foreground">
+                    <span className="relative z-10 bg-card px-2">ou entre com e-mail</span>
+                    <span
+                      className="absolute inset-x-0 top-1/2 border-t border-border"
+                      aria-hidden
+                    />
+                  </div>
                   <div className="grid gap-2">
                     <Label htmlFor="login-email">E-mail</Label>
                     <Input
@@ -384,6 +422,25 @@ function AuthPage() {
 
               <TabsContent value="registo" className="mt-6">
                 <form onSubmit={signUp} className="grid gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={signInWithGoogle}
+                    className="w-full gap-2"
+                  >
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-xs font-extrabold text-[#4285F4]">
+                      G
+                    </span>
+                    Criar conta com Google
+                  </Button>
+                  <div className="relative py-1 text-center text-[11px] text-muted-foreground">
+                    <span className="relative z-10 bg-card px-2">ou crie com e-mail</span>
+                    <span
+                      className="absolute inset-x-0 top-1/2 border-t border-border"
+                      aria-hidden
+                    />
+                  </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
                       <Label htmlFor="su-name">Nome público</Label>
@@ -473,7 +530,11 @@ function AuthPage() {
                     />
                     <span>
                       Li e aceito os{" "}
-                      <Link to="/p/$slug" params={{ slug: "termos" }} className="text-primary hover:underline">
+                      <Link
+                        to="/p/$slug"
+                        params={{ slug: "termos" }}
+                        className="text-primary hover:underline"
+                      >
                         Termos de Uso
                       </Link>
                       ,{" "}
@@ -509,7 +570,9 @@ function AuthPage() {
                   </Button>
                   <ul className="grid gap-2 rounded-xl border border-border bg-accent/30 p-3 text-[11px] text-muted-foreground">
                     <li>• Publique anúncios e receba por Pix com custódia.</li>
-                    <li>• Verificação de identidade em 3 níveis, você escolhe o quanto compartilha.</li>
+                    <li>
+                      • Verificação de identidade em 3 níveis, você escolhe o quanto compartilha.
+                    </li>
                     <li>• Notificações em tempo real de mensagens, pedidos e saques.</li>
                   </ul>
                 </form>
@@ -524,7 +587,11 @@ function AuthPage() {
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Precisa de ajuda?{" "}
-            <Link to="/p/$slug" params={{ slug: "contato" }} className="text-primary hover:underline">
+            <Link
+              to="/p/$slug"
+              params={{ slug: "contato" }}
+              className="text-primary hover:underline"
+            >
               Fale com o suporte
             </Link>{" "}
             ou{" "}

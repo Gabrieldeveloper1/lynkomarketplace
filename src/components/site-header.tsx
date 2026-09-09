@@ -61,15 +61,16 @@ import { fetchCategories, fetchProducts, fetchSitePages } from "@/lib/marketplac
 import { PROTECTION_TIERS } from "@/lib/protection";
 import { formatPrice } from "@/lib/format";
 import { CategoryVisual } from "@/components/category-icon";
-import logoAsset from "@/assets/lynko-market-logo.png.asset.json";
+
+const BRAND_LOGO_URL = "https://i.ibb.co/DDk11nFh/lynko-market-logo.png";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="flex shrink-0 items-center" aria-label="Lynko Market — início">
       <img
-        src={logoAsset.url}
+        src={BRAND_LOGO_URL}
         alt="Lynko Market"
-        className={`invert dark:invert-0 ${compact ? "h-8 w-10 object-cover object-left" : "h-8 w-auto sm:h-9"}`}
+        className={`${compact ? "h-8 w-10 object-cover object-left" : "h-8 w-auto sm:h-9"}`}
       />
     </Link>
   );
@@ -104,12 +105,14 @@ export function SiteHeader() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   const { user, profile, isStaff, isAdmin, signOut } = useAuth();
-  const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
   const { data: sitePages = [] } = useQuery({ queryKey: ["site-pages"], queryFn: fetchSitePages });
   const activeCat = useRouterState({
     select: (s) => (s.location.search as { cat?: string })?.cat ?? "todas",
   });
-
 
   const { data: suggestions = [], isFetching: searching } = useQuery({
     queryKey: ["search-suggest", q],
@@ -133,7 +136,10 @@ export function SiteHeader() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[22rem] overflow-y-auto border-r border-border p-0">
+          <SheetContent
+            side="left"
+            className="w-[22rem] overflow-y-auto border-r border-border p-0"
+          >
             <DrawerContent
               categories={categories}
               activeCat={activeCat}
@@ -142,7 +148,6 @@ export function SiteHeader() {
               theme={theme}
               toggle={toggle}
             />
-
           </SheetContent>
         </Sheet>
 
@@ -160,7 +165,6 @@ export function SiteHeader() {
             </Button>
           </Link>
         </nav>
-
 
         <div className="relative mx-auto hidden w-full max-w-xl flex-1 md:block">
           <form onSubmit={submit}>
@@ -200,7 +204,12 @@ export function SiteHeader() {
                   >
                     <span className="h-10 w-14 shrink-0 overflow-hidden rounded-lg bg-accent">
                       {p.images?.[0] && (
-                        <img src={p.images[0]} alt="" className="h-full w-full object-cover" loading="lazy" />
+                        <img
+                          src={p.images[0]}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -209,7 +218,9 @@ export function SiteHeader() {
                         {p.auto_delivery ? "Entrega automática" : "Entrega manual"}
                       </span>
                     </span>
-                    <span className="text-sm font-bold text-primary">{formatPrice(p.price_cents)}</span>
+                    <span className="text-sm font-bold text-primary">
+                      {formatPrice(p.price_cents)}
+                    </span>
                   </Link>
                 ))
               )}
@@ -223,7 +234,6 @@ export function SiteHeader() {
             </div>
           )}
         </div>
-
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
           <Button
@@ -246,7 +256,6 @@ export function SiteHeader() {
               <NotificationsMenu />
 
               <AccountMenu />
-
             </>
           ) : (
             <Link to="/auth" search={{ redirect: "/dashboard" }}>
@@ -402,7 +411,6 @@ function DrawerContent({
     c.name.toLowerCase().includes(catTerm.trim().toLowerCase()),
   );
 
-
   return (
     <div className="flex min-h-full flex-col">
       <div className="flex items-center justify-between border-b border-border bg-gradient-hero p-5">
@@ -423,7 +431,9 @@ function DrawerContent({
           >
             <Avatar className="h-11 w-11">
               <AvatarImage src={profile?.avatar_url ?? undefined} />
-              <AvatarFallback>{(profile?.username ?? "U").slice(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarFallback>
+                {(profile?.username ?? "U").slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">
@@ -447,10 +457,20 @@ function DrawerContent({
         )}
 
         <DrawerSection title="Descobrir">
-          <DrawerLink to="/produtos" search={{ q: "", cat: "todas", sort: "recentes" }} icon={<Store className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/produtos"
+            search={{ q: "", cat: "todas", sort: "recentes" }}
+            icon={<Store className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Marketplace
           </DrawerLink>
-          <DrawerLink to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }} icon={<Flame className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/produtos"
+            search={{ q: "", cat: "todas", sort: "vendidos" }}
+            icon={<Flame className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Mais vendidos
           </DrawerLink>
           <DrawerLink to="/vendedores" icon={<Users className="h-4 w-4" />} onNavigate={onNavigate}>
@@ -459,23 +479,43 @@ function DrawerContent({
         </DrawerSection>
 
         <DrawerSection title="Minha conta">
-          <DrawerLink to="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/dashboard"
+            icon={<LayoutDashboard className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Painel
           </DrawerLink>
-          <DrawerLink to="/mensagens" icon={<MessageSquare className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/mensagens"
+            icon={<MessageSquare className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Mensagens
           </DrawerLink>
-          <DrawerLink to="/notificacoes" icon={<Bell className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/notificacoes"
+            icon={<Bell className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Notificações
           </DrawerLink>
           <DrawerLink to="/dashboard" icon={<Wallet className="h-4 w-4" />} onNavigate={onNavigate}>
             Carteira e saques
           </DrawerLink>
-          <DrawerLink to="/verificacao" icon={<BadgeCheck className="h-4 w-4" />} onNavigate={onNavigate}>
+          <DrawerLink
+            to="/verificacao"
+            icon={<BadgeCheck className="h-4 w-4" />}
+            onNavigate={onNavigate}
+          >
             Verificação de identidade
           </DrawerLink>
           {isStaff && (
-            <DrawerLink to="/admin" icon={<Shield className="h-4 w-4 text-primary" />} onNavigate={onNavigate}>
+            <DrawerLink
+              to="/admin"
+              icon={<Shield className="h-4 w-4 text-primary" />}
+              onNavigate={onNavigate}
+            >
               Painel administrativo
             </DrawerLink>
           )}
@@ -527,11 +567,12 @@ function DrawerContent({
               })}
             </div>
             {filteredCats.length === 0 && (
-              <p className="px-1 py-2 text-xs text-muted-foreground">Nenhuma categoria encontrada.</p>
+              <p className="px-1 py-2 text-xs text-muted-foreground">
+                Nenhuma categoria encontrada.
+              </p>
             )}
           </div>
         </DrawerSection>
-
 
         <DrawerSection title="Taxa de serviço">
           <div className="grid gap-2">
@@ -648,4 +689,3 @@ function DrawerLink({
     </Link>
   );
 }
-
