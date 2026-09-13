@@ -15,8 +15,6 @@ import {
   HelpCircle,
   TrendingUp,
   RefreshCw,
-  QrCode,
-  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,8 +34,6 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 
 const FAQ_GROUPS: { id: string; label: string; items: { q: string; a: string }[] }[] = [
   {
@@ -228,8 +224,6 @@ const steps = [
 
 function Home() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [heroSearch, setHeroSearch] = useState("");
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
@@ -345,46 +339,18 @@ function Home() {
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16">
           <div>
             <Badge className="mb-6 gap-1 bg-primary/15 text-primary hover:bg-primary/20">
-              <QrCode className="h-3 w-3" /> Compre via Pix. Receba com segurança.
+              <Zap className="h-3 w-3" /> Entrega automática 24/7
             </Badge>
             <h1 className="max-w-4xl font-display text-[2rem] font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
-              Compre produtos digitais{" "}
+              O lugar certo para comprar e vender{" "}
               <span className="hero-shimmer-text bg-gradient-primary bg-clip-text text-transparent">
-                com segurança.
+                produtos digitais
               </span>
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-muted-foreground sm:mt-5 sm:text-lg">
-              Encontre produtos, compare vendedores e pague via Pix. A Lynko protege a compra e
-              acompanha a entrega do início ao fim.
+              Contas, itens de jogos, gift cards e muito mais. Compre com segurança ou anuncie e
+              comece a lucrar agora.
             </p>
-            <form
-              className="mt-7 flex max-w-2xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-card sm:flex-row"
-              onSubmit={(event) => {
-                event.preventDefault();
-                navigate({
-                  to: "/produtos",
-                  search: { q: heroSearch, cat: "todas", sort: "recentes" },
-                });
-              }}
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
-                <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
-                <input
-                  value={heroSearch}
-                  onChange={(event) => setHeroSearch(event.target.value)}
-                  placeholder="Procure por jogos, gift cards, IA, software, serviços..."
-                  aria-label="O que você está procurando?"
-                  className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-              <Button
-                type="submit"
-                size="lg"
-                className="gap-2 bg-gradient-primary text-primary-foreground"
-              >
-                Buscar <ArrowRight className="h-4 w-4" />
-              </Button>
-            </form>
             <div className="mt-7 grid gap-3 sm:flex sm:flex-wrap">
               <Link
                 to="/produtos"
@@ -407,9 +373,9 @@ function Home() {
 
             <div className="mt-9 grid max-w-2xl grid-cols-3 gap-3 sm:mt-12 sm:gap-4">
               {[
-                { v: "Pix", l: "Pagamento simples" },
-                { v: "100%", l: "Compra acompanhada" },
-                { v: "24/7", l: "Entrega automática" },
+                { v: "0%", l: "Taxa escondida" },
+                { v: "24/7", l: "Mediação humana" },
+                { v: "Pix", l: "Aprovação automática" },
               ].map((s) => (
                 <div key={s.l}>
                   <p className="text-xl font-extrabold text-primary sm:text-3xl">{s.v}</p>
@@ -467,25 +433,6 @@ function Home() {
         </div>
       </section>
 
-      <section className="border-b border-border bg-card/60" aria-label="Por que comprar na Lynko">
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:grid-cols-2 lg:grid-cols-5">
-          {[
-            [QrCode, "Pagamento via Pix"],
-            [ShieldCheck, "Compra protegida"],
-            [BadgeCheck, "Vendedores avaliados"],
-            [Zap, "Entrega rápida"],
-            [Users, "Suporte da Lynko"],
-          ].map(([Icon, label]) => (
-            <div key={label as string} className="flex items-center gap-2 text-sm font-semibold">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-4 w-4" />
-              </span>
-              {label as string}
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* CATEGORIAS */}
       <Section
         title="Categorias do marketplace"
@@ -516,84 +463,11 @@ function Home() {
                       <CategoryVisual category={c} className="h-5 w-5" />
                     </span>
                   )}
-                  <span className="block px-3 py-3">
-                    <span className="block">{c.name}</span>
-                    {c.product_count ? (
-                      <span className="mt-1 block text-xs text-muted-foreground">
-                        {c.product_count} {c.product_count === 1 ? "produto" : "produtos"}
-                      </span>
-                    ) : (
-                      <span className="mt-1 block text-[11px] leading-tight text-muted-foreground">
-                        Seja o primeiro vendedor
-                      </span>
-                    )}
-                  </span>
+                  <span className="block px-3 py-3">{c.name}</span>
                 </Link>
               ))}
         </div>
       </Section>
-
-      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-8">
-        <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/[0.06] p-6 sm:p-10">
-          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-          <div className="relative grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
-            <div>
-              <Badge className="mb-4 gap-1 bg-primary text-primary-foreground hover:bg-primary">
-                <Sparkles className="h-3 w-3" /> Programa Lynko Founders
-              </Badge>
-              <h2 className="max-w-2xl text-2xl font-extrabold sm:text-4xl">
-                Seja um dos primeiros vendedores da Lynko.
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Estamos abrindo espaço para quem quer construir sua loja desde o começo. Publique
-                gratuitamente, ganhe destaque inicial e ajude a formar o marketplace brasileiro de
-                produtos digitais.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-sm text-muted-foreground">
-                {["Publicação gratuita", "Destaque inicial", "Selo Vendedor Fundador"].map(
-                  (item) => (
-                    <span
-                      key={item}
-                      className="rounded-full border border-border bg-background/70 px-3 py-1.5"
-                    >
-                      {item}
-                    </span>
-                  ),
-                )}
-              </div>
-              <Link to={user ? "/dashboard" : "/auth"} className="mt-7 inline-flex">
-                <Button
-                  size="lg"
-                  className="gap-2 bg-gradient-primary text-primary-foreground shadow-glow"
-                >
-                  {user ? "Abrir minha loja" : "Começar a vender"}{" "}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="rounded-2xl border border-border bg-card/80 p-5 shadow-card">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                O que vem primeiro
-              </p>
-              <div className="mt-4 grid gap-3">
-                {["Publique seu produto", "Construa sua reputação", "Venda e receba via Pix"].map(
-                  (item, index) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-3 rounded-xl bg-background/70 p-3 text-sm font-semibold"
-                    >
-                      <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-xs text-primary-foreground">
-                        {index + 1}
-                      </span>
-                      {item}
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <Section
         title="Em Destaque"

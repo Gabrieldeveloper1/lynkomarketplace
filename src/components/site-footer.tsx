@@ -70,16 +70,6 @@ export function SiteFooter() {
                   Favoritos
                 </Link>
               </li>
-              <li>
-                <Link to="/ofertas" className="transition-colors hover:text-foreground">
-                  Ofertas
-                </Link>
-              </li>
-              <li>
-                <Link to="/roadmap" className="transition-colors hover:text-foreground">
-                  Roadmap público
-                </Link>
-              </li>
             </ul>
           </nav>
 
@@ -98,26 +88,6 @@ export function SiteFooter() {
               <li>
                 <Link to="/protecao" className="transition-colors hover:text-foreground">
                   Como funciona a proteção
-                </Link>
-              </li>
-              <li>
-                <Link to="/ajuda" className="transition-colors hover:text-foreground">
-                  Central de ajuda
-                </Link>
-              </li>
-              <li>
-                <Link to="/seguranca" className="transition-colors hover:text-foreground">
-                  Segurança
-                </Link>
-              </li>
-              <li>
-                <Link to="/taxas" className="transition-colors hover:text-foreground">
-                  Taxas transparentes
-                </Link>
-              </li>
-              <li>
-                <Link to="/como-funciona" className="transition-colors hover:text-foreground">
-                  Como funciona
                 </Link>
               </li>
               <li>

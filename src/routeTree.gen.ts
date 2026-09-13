@@ -11,20 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BlogRouteImport } from './routes/blog'
-import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
-import { Route as LabsRouteImport } from './routes/labs'
-import { Route as OfertasRouteImport } from './routes/ofertas'
 import { Route as ProdutosRouteImport } from './routes/produtos'
-import { Route as ProdutosProibidosRouteImport } from './routes/produtos-proibidos'
 import { Route as ProtecaoRouteImport } from './routes/protecao'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as SegurancaRouteImport } from './routes/seguranca'
 import { Route as StatusRouteImport } from './routes/status'
-import { Route as TaxasRouteImport } from './routes/taxas'
 import { Route as VendedoresRouteImport } from './routes/vendedores'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -55,11 +47,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AjudaRoute = AjudaRouteImport.update({
-  id: '/ajuda',
-  path: '/ajuda',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -70,29 +57,9 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
-  id: '/como-funciona',
-  path: '/como-funciona',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabsRoute = LabsRouteImport.update({
-  id: '/labs',
-  path: '/labs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OfertasRoute = OfertasRouteImport.update({
-  id: '/ofertas',
-  path: '/ofertas',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProdutosRoute = ProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProdutosProibidosRoute = ProdutosProibidosRouteImport.update({
-  id: '/produtos-proibidos',
-  path: '/produtos-proibidos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtecaoRoute = ProtecaoRouteImport.update({
@@ -105,24 +72,9 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SegurancaRoute = SegurancaRouteImport.update({
-  id: '/seguranca',
-  path: '/seguranca',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TaxasRoute = TaxasRouteImport.update({
-  id: '/taxas',
-  path: '/taxas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VendedoresRoute = VendedoresRouteImport.update({
@@ -230,20 +182,12 @@ const ApiPublicSitemapRoute = ApiPublicSitemapRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ajuda': typeof AjudaRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
-  '/como-funciona': typeof ComoFuncionaRoute
-  '/labs': typeof LabsRoute
-  '/ofertas': typeof OfertasRoute
   '/produtos': typeof ProdutosRoute
-  '/produtos-proibidos': typeof ProdutosProibidosRoute
   '/protecao': typeof ProtecaoRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/roadmap': typeof RoadmapRoute
-  '/seguranca': typeof SegurancaRoute
   '/status': typeof StatusRoute
-  '/taxas': typeof TaxasRoute
   '/vendedores': typeof VendedoresRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -267,20 +211,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ajuda': typeof AjudaRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
-  '/como-funciona': typeof ComoFuncionaRoute
-  '/labs': typeof LabsRoute
-  '/ofertas': typeof OfertasRoute
   '/produtos': typeof ProdutosRoute
-  '/produtos-proibidos': typeof ProdutosProibidosRoute
   '/protecao': typeof ProtecaoRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/roadmap': typeof RoadmapRoute
-  '/seguranca': typeof SegurancaRoute
   '/status': typeof StatusRoute
-  '/taxas': typeof TaxasRoute
   '/vendedores': typeof VendedoresRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -306,20 +242,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/ajuda': typeof AjudaRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
-  '/como-funciona': typeof ComoFuncionaRoute
-  '/labs': typeof LabsRoute
-  '/ofertas': typeof OfertasRoute
   '/produtos': typeof ProdutosRoute
-  '/produtos-proibidos': typeof ProdutosProibidosRoute
   '/protecao': typeof ProtecaoRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/roadmap': typeof RoadmapRoute
-  '/seguranca': typeof SegurancaRoute
   '/status': typeof StatusRoute
-  '/taxas': typeof TaxasRoute
   '/vendedores': typeof VendedoresRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -345,20 +273,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/ajuda'
     | '/auth'
     | '/blog'
-    | '/como-funciona'
-    | '/labs'
-    | '/ofertas'
     | '/produtos'
-    | '/produtos-proibidos'
     | '/protecao'
     | '/reset-password'
-    | '/roadmap'
-    | '/seguranca'
     | '/status'
-    | '/taxas'
     | '/vendedores'
     | '/admin'
     | '/dashboard'
@@ -382,20 +302,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/ajuda'
     | '/auth'
     | '/blog'
-    | '/como-funciona'
-    | '/labs'
-    | '/ofertas'
     | '/produtos'
-    | '/produtos-proibidos'
     | '/protecao'
     | '/reset-password'
-    | '/roadmap'
-    | '/seguranca'
     | '/status'
-    | '/taxas'
     | '/vendedores'
     | '/admin'
     | '/dashboard'
@@ -420,20 +332,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/ajuda'
     | '/auth'
     | '/blog'
-    | '/como-funciona'
-    | '/labs'
-    | '/ofertas'
     | '/produtos'
-    | '/produtos-proibidos'
     | '/protecao'
     | '/reset-password'
-    | '/roadmap'
-    | '/seguranca'
     | '/status'
-    | '/taxas'
     | '/vendedores'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
@@ -459,20 +363,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AjudaRoute: typeof AjudaRoute
   AuthRoute: typeof AuthRoute
   BlogRoute: typeof BlogRouteWithChildren
-  ComoFuncionaRoute: typeof ComoFuncionaRoute
-  LabsRoute: typeof LabsRoute
-  OfertasRoute: typeof OfertasRoute
   ProdutosRoute: typeof ProdutosRoute
-  ProdutosProibidosRoute: typeof ProdutosProibidosRoute
   ProtecaoRoute: typeof ProtecaoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  RoadmapRoute: typeof RoadmapRoute
-  SegurancaRoute: typeof SegurancaRoute
   StatusRoute: typeof StatusRoute
-  TaxasRoute: typeof TaxasRoute
   VendedoresRoute: typeof VendedoresRoute
   CheckoutSlugRoute: typeof CheckoutSlugRoute
   PSlugRoute: typeof PSlugRoute
@@ -500,13 +396,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ajuda': {
-      id: '/ajuda'
-      path: '/ajuda'
-      fullPath: '/ajuda'
-      preLoaderRoute: typeof AjudaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -521,39 +410,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/como-funciona': {
-      id: '/como-funciona'
-      path: '/como-funciona'
-      fullPath: '/como-funciona'
-      preLoaderRoute: typeof ComoFuncionaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/labs': {
-      id: '/labs'
-      path: '/labs'
-      fullPath: '/labs'
-      preLoaderRoute: typeof LabsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ofertas': {
-      id: '/ofertas'
-      path: '/ofertas'
-      fullPath: '/ofertas'
-      preLoaderRoute: typeof OfertasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/produtos': {
       id: '/produtos'
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof ProdutosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/produtos-proibidos': {
-      id: '/produtos-proibidos'
-      path: '/produtos-proibidos'
-      fullPath: '/produtos-proibidos'
-      preLoaderRoute: typeof ProdutosProibidosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/protecao': {
@@ -570,32 +431,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seguranca': {
-      id: '/seguranca'
-      path: '/seguranca'
-      fullPath: '/seguranca'
-      preLoaderRoute: typeof SegurancaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/status': {
       id: '/status'
       path: '/status'
       fullPath: '/status'
       preLoaderRoute: typeof StatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/taxas': {
-      id: '/taxas'
-      path: '/taxas'
-      fullPath: '/taxas'
-      preLoaderRoute: typeof TaxasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vendedores': {
@@ -783,20 +623,12 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AjudaRoute: AjudaRoute,
   AuthRoute: AuthRoute,
   BlogRoute: BlogRouteWithChildren,
-  ComoFuncionaRoute: ComoFuncionaRoute,
-  LabsRoute: LabsRoute,
-  OfertasRoute: OfertasRoute,
   ProdutosRoute: ProdutosRoute,
-  ProdutosProibidosRoute: ProdutosProibidosRoute,
   ProtecaoRoute: ProtecaoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  RoadmapRoute: RoadmapRoute,
-  SegurancaRoute: SegurancaRoute,
   StatusRoute: StatusRoute,
-  TaxasRoute: TaxasRoute,
   VendedoresRoute: VendedoresRoute,
   CheckoutSlugRoute: CheckoutSlugRoute,
   PSlugRoute: PSlugRoute,
