@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Confirme seu novo e-mail | LynkoMarketplace</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #18181b;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        &quot;Segoe UI&quot;,
+        Arial,
+        sans-serif;
+    "
+  >
+    <div style="display: none; max-height: 0; overflow: hidden; opacity: 0; color: transparent">
+      Confirme seu novo endereço de e-mail na LynkoMarketplace.
+    </div>
+
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="background: #f5f5f5"
+    >
+      <tr>
+        <td align="center" style="padding: 32px 12px">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="max-width: 600px"
+          >
+            <tr>
+              <td
+                style="
+                  overflow: hidden;
+                  border: 1px solid #e4e4e7;
+                  border-radius: 24px;
+                  background: #ffffff;
+                  box-shadow: 0 10px 30px rgba(24, 24, 27, 0.08);
+                "
+              >
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="height: 7px; background: #18181b; font-size: 0; line-height: 0">
+                      &nbsp;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 36px 42px 38px">
+                      <table
+                        role="presentation"
+                        width="100%"
+                        cellspacing="0"
+                        cellpadding="0"
+                        border="0"
+                      >
+                        <tr>
+                          <td align="center" style="padding-bottom: 22px">
+                            <div
+                              style="
+                                display: inline-block;
+                                width: 58px;
+                                height: 58px;
+                                border-radius: 18px;
+                                background: #f4f4f5;
+                                color: #18181b;
+                                font-size: 27px;
+                                line-height: 58px;
+                                text-align: center;
+                              "
+                            >
+                              📧
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align="center">
+                            <h1
+                              style="
+                                margin: 0;
+                                color: #18181b;
+                                font-size: 28px;
+                                line-height: 1.2;
+                                font-weight: 800;
+                                letter-spacing: -0.6px;
+                              "
+                            >
+                              Confirme seu novo e-mail
+                            </h1>
+                            <p
+                              style="
+                                margin: 16px auto 0;
+                                max-width: 440px;
+                                color: #52525b;
+                                font-size: 15px;
+                                line-height: 1.7;
+                              "
+                            >
+                              Confirme <strong style="color: #18181b">{{ .NewEmail }}</strong> como
+                              o novo endereço de e-mail da sua conta.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align="center" style="padding: 30px 0 24px">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr>
+                                <td
+                                  align="center"
+                                  style="
+                                    border-radius: 12px;
+                                    background: #18181b;
+                                    box-shadow: 0 8px 20px rgba(24, 24, 27, 0.2);
+                                  "
+                                >
+                                  <a
+                                    href="{{ .ConfirmationURL }}"
+                                    style="
+                                      display: inline-block;
+                                      padding: 16px 28px;
+                                      color: #ffffff;
+                                      font-size: 15px;
+                                      line-height: 1;
+                                      font-weight: 700;
+                                      text-decoration: none;
+                                      border-radius: 12px;
+                                    "
+                                    >Confirmar novo e-mail</a
+                                  >
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <table
+                              role="presentation"
+                              width="100%"
+                              cellspacing="0"
+                              cellpadding="0"
+                              border="0"
+                              style="
+                                border: 1px solid #e4e4e7;
+                                border-radius: 16px;
+                                background: #fafafa;
+                              "
+                            >
+                              <tr>
+                                <td
+                                  style="
+                                    padding: 16px 18px;
+                                    color: #52525b;
+                                    font-size: 13px;
+                                    line-height: 1.6;
+                                  "
+                                >
+                                  <strong style="color: #18181b">Alteração de segurança</strong
+                                  ><br />
+                                  Depois da confirmação, este será o e-mail usado para acessar e
+                                  receber avisos importantes da sua conta.
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align="center" style="padding-top: 24px">
+                            <p style="margin: 0; color: #71717a; font-size: 12px; line-height: 1.6">
+                              Se o botão não funcionar, copie e cole este endereço no navegador:
+                            </p>
+                            <p
+                              style="
+                                margin: 8px 0 0;
+                                word-break: break-all;
+                                color: #71717a;
+                                font-size: 11px;
+                                line-height: 1.6;
+                              "
+                            >
+                              {{ .ConfirmationURL }}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        border-top: 1px solid #f0f0f0;
+                        background: #fafafa;
+                        padding: 22px 30px;
+                        text-align: center;
+                      "
+                    >
+                      <p style="margin: 0; color: #a1a1aa; font-size: 12px; line-height: 1.6">
+                        Se você não solicitou esta alteração, ignore este e-mail com segurança.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="padding: 18px 12px 0; color: #a1a1aa; font-size: 11px; line-height: 1.5"
+              >
+                © 2026 LynkoMarketplace · Segurança para sua conta
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
