@@ -73,9 +73,20 @@ export const FALLBACK_SITE_PAGES: SitePage[] = [
 ];
 
 export async function fetchCategories() {
-  const { data, error } = await supabase.from("categories").select("*").order("position");
+  const [{ data, error }, { data: products, error: productsError }] = await Promise.all([
+    supabase.from("categories").select("*").order("position"),
+    supabase.from("products").select("category_slug").eq("status", "active"),
+  ]);
   if (error) throw error;
-  return data;
+  if (productsError) throw productsError;
+  const counts = new Map<string, number>();
+  for (const product of products ?? []) {
+    counts.set(product.category_slug, (counts.get(product.category_slug) ?? 0) + 1);
+  }
+  return (data ?? []).map((category) => ({
+    ...category,
+    product_count: counts.get(category.slug) ?? 0,
+  }));
 }
 
 export type ProductFilters = {
