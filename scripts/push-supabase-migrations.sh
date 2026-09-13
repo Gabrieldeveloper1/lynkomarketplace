@@ -14,6 +14,15 @@ readonly DEFAULT_PROJECT_REF="tocirlbklcrevongolro"
 readonly PROJECT_REF="${SUPABASE_PROJECT_REF:-$DEFAULT_PROJECT_REF}"
 export CI=1
 
+# A Vercel não deve alterar o schema durante um build comum. Além de tornar o
+# deploy dependente de uma conexão PostgreSQL externa, isso pode causar corrida
+# entre deploys. Execute `RUN_DB_PUSH=1 npm run db:push` em uma etapa protegida
+# quando quiser aplicar migrations deliberadamente.
+if [[ "${VERCEL:-}" == "1" && "${RUN_DB_PUSH:-0}" != "1" ]]; then
+  echo "Vercel build: migrations ignoradas (defina RUN_DB_PUSH=1 para aplicar deliberadamente)."
+  exit 0
+fi
+
 if [[ -n "${SUPABASE_DB_URL:-}" ]]; then
   exec npx --yes "supabase@${SUPABASE_CLI_VERSION}" db push \
     --db-url "$SUPABASE_DB_URL" \

@@ -381,7 +381,7 @@ function Dashboard() {
   ];
 
   return (
-    <div className="mx-auto min-w-0 max-w-7xl overflow-x-hidden px-3 py-4 sm:px-4 sm:py-8">
+    <div className="mx-auto min-w-0 max-w-7xl overflow-x-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_right,oklch(0.7_0.2_264_/_0.12),transparent_38%),radial-gradient(circle_at_bottom_left,oklch(0.7_0.18_315_/_0.08),transparent_34%)] px-3 py-4 sm:px-4 sm:py-8">
       {profile?.banned && <BanNotice />}
 
       <Tabs
@@ -390,7 +390,7 @@ function Dashboard() {
         className="grid min-w-0 gap-4 lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-6 lg:items-start"
       >
         <aside className="min-w-0 lg:sticky lg:top-24">
-          <div className="relative z-0 overflow-hidden rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-card">
+          <div className="relative z-0 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-surface p-4 text-card-foreground shadow-card">
             <div className="flex items-center gap-3">
               <Avatar className="h-11 w-11 shrink-0">
                 <AvatarImage src={profile?.avatar_url ?? undefined} />
@@ -423,7 +423,7 @@ function Dashboard() {
           </div>
 
           <div className="mt-3 overflow-x-auto pb-1 lg:overflow-visible lg:pb-0">
-            <TabsList className="flex h-auto w-max min-w-full flex-row justify-start gap-1 rounded-2xl border border-border bg-card p-2 lg:w-full lg:flex-col lg:items-stretch lg:gap-0">
+            <TabsList className="flex h-auto w-max min-w-full flex-row justify-start gap-1 rounded-2xl border border-primary/15 bg-sidebar p-2 shadow-card lg:w-full lg:flex-col lg:items-stretch lg:gap-0">
               {NAV_GROUPS.map((g) => (
                 <div key={g.group} className="contents lg:block lg:w-full">
                   <p className="hidden px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground lg:block">

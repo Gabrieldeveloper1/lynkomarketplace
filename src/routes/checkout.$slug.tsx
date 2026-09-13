@@ -104,6 +104,14 @@ function CheckoutPage() {
   const isOwn = user?.id === product.seller_id;
 
   const confirm = async () => {
+    if (!user) {
+      toast.info("Entre na sua conta para comprar e acompanhar o pedido.");
+      await navigate({
+        to: "/auth",
+        search: { redirect: `/checkout/${slug}` },
+      });
+      return;
+    }
     const buyerEmail = email.trim().toLowerCase();
     if (buyerEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(buyerEmail)) {
       toast.error("Informe um e-mail válido ou deixe o campo em branco.");
@@ -416,7 +424,7 @@ function CheckoutPage() {
               ) : (
                 <Lock className="mr-2 h-4 w-4" />
               )}
-              {isOwn ? "Este anúncio é seu" : "Gerar QR Code Pix"}
+              {isOwn ? "Este anúncio é seu" : user ? "Gerar QR Code Pix" : "Entrar para comprar"}
             </Button>
 
             <div className="mt-4 space-y-2 text-[11px] text-muted-foreground">
@@ -455,7 +463,7 @@ function CheckoutPage() {
             ) : (
               <Lock className="mr-2 h-4 w-4" />
             )}
-            {isOwn ? "Anúncio seu" : "Gerar Pix"}
+            {isOwn ? "Anúncio seu" : user ? "Gerar Pix" : "Entrar para comprar"}
           </Button>
         </div>
       </div>

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "if [ \"$VERCEL\" = \"1\" ]; then npm run db:push; fi && vite build",
+    "build": "vite build",
     "start": "node .output/server/index.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",

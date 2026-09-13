@@ -330,7 +330,7 @@ function Home() {
   };
 
   return (
-    <div>
+    <div className="bg-[radial-gradient(circle_at_50%_0%,oklch(0.7_0.2_264_/_0.1),transparent_34%)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
@@ -342,9 +342,9 @@ function Home() {
           className="pointer-events-none absolute left-1/2 -top-56 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"
           aria-hidden
         />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16">
-          <div>
-            <Badge className="mb-6 gap-1 bg-primary/15 text-primary hover:bg-primary/20">
+        <div className="relative mx-auto max-w-5xl px-4 py-10 text-center sm:py-14">
+          <div className="mx-auto flex max-w-4xl flex-col items-center">
+            <Badge className="mb-5 gap-1 bg-primary/15 text-primary hover:bg-primary/20">
               <QrCode className="h-3 w-3" /> Compre via Pix. Receba com segurança.
             </Badge>
             <h1 className="max-w-4xl font-display text-[2rem] font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
@@ -358,7 +358,7 @@ function Home() {
               acompanha a entrega do início ao fim.
             </p>
             <form
-              className="mt-7 flex max-w-2xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-card sm:flex-row"
+              className="mt-7 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-card sm:flex-row"
               onSubmit={(event) => {
                 event.preventDefault();
                 navigate({
@@ -385,7 +385,7 @@ function Home() {
                 Buscar <ArrowRight className="h-4 w-4" />
               </Button>
             </form>
-            <div className="mt-7 grid gap-3 sm:flex sm:flex-wrap">
+            <div className="mt-5 grid w-full gap-3 sm:flex sm:w-auto sm:flex-wrap">
               <Link
                 to="/produtos"
                 search={{ q: "", cat: "todas", sort: "recentes" }}
@@ -405,7 +405,7 @@ function Home() {
               </Link>
             </div>
 
-            <div className="mt-9 grid max-w-2xl grid-cols-3 gap-3 sm:mt-12 sm:gap-4">
+            <div className="mt-8 grid w-full max-w-2xl grid-cols-3 gap-3 sm:mt-12 sm:gap-4">
               {[
                 { v: "Pix", l: "Pagamento simples" },
                 { v: "100%", l: "Compra acompanhada" },
@@ -416,48 +416,6 @@ function Home() {
                   <p className="text-xs text-muted-foreground">{s.l}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div className="relative hidden lg:block">
-            <div className="absolute -inset-8 rounded-[3rem] bg-primary/10 blur-3xl" aria-hidden />
-            <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card/80 p-5 shadow-glow backdrop-blur-xl">
-              <div className="flex items-center justify-between border-b border-border pb-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    Experiência Lynko
-                  </p>
-                  <p className="mt-1 text-lg font-bold">Uma compra sem incerteza</p>
-                </div>
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-                  <ShieldCheck className="h-5 w-5" />
-                </span>
-              </div>
-              <div className="mt-5 grid gap-3">
-                {[
-                  ["01", "Escolha com contexto", "Filtros, reputação e avaliações em um só lugar."],
-                  ["02", "Pague protegido", "O valor fica em custódia até a entrega."],
-                  [
-                    "03",
-                    "Receba no ritmo certo",
-                    "Entrega automática ou acompanhamento pelo chat.",
-                  ],
-                ].map(([number, title, text]) => (
-                  <div
-                    key={number}
-                    className="flex gap-3 rounded-2xl border border-border/70 bg-background/70 p-3"
-                  >
-                    <span className="text-xs font-bold text-primary">{number}</span>
-                    <div>
-                      <p className="text-sm font-bold">{title}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 flex items-center gap-2 rounded-2xl bg-primary/10 p-3 text-xs text-muted-foreground">
-                <Check className="h-4 w-4 text-primary" /> Suporte humano quando você precisar.
-              </div>
             </div>
           </div>
         </div>
@@ -533,6 +491,36 @@ function Home() {
         </div>
       </Section>
 
+      <Section
+        title="Em Destaque"
+        subtitle="Seleção especial de produtos impulsionados e bem avaliados."
+        icon={<Flame className="h-4 w-4" />}
+        action={
+          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
+            <Button variant="ghost" className="gap-1 text-sm">
+              Ver todos <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        }
+      >
+        <Grid loading={promoted.isLoading} items={promoted.data ?? []} />
+      </Section>
+
+      <Section
+        title="Mais Procurados da Semana"
+        subtitle="Os anúncios com maior procura e mais vendas na plataforma."
+        icon={<TrendingUp className="h-4 w-4" />}
+        action={
+          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
+            <Button variant="ghost" className="gap-1 text-sm">
+              Ver mais <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        }
+      >
+        <Grid loading={mostWanted.isLoading} items={mostWanted.data ?? []} />
+      </Section>
+
       <section className="mx-auto max-w-7xl px-4 py-4 sm:py-8">
         <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/[0.06] p-6 sm:p-10">
           <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
@@ -594,36 +582,6 @@ function Home() {
           </div>
         </div>
       </section>
-
-      <Section
-        title="Em Destaque"
-        subtitle="Seleção especial de produtos impulsionados e bem avaliados."
-        icon={<Flame className="h-4 w-4" />}
-        action={
-          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
-            <Button variant="ghost" className="gap-1 text-sm">
-              Ver todos <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        }
-      >
-        <Grid loading={promoted.isLoading} items={promoted.data ?? []} />
-      </Section>
-
-      <Section
-        title="Mais Procurados da Semana"
-        subtitle="Os anúncios com maior procura e mais vendas na plataforma."
-        icon={<TrendingUp className="h-4 w-4" />}
-        action={
-          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
-            <Button variant="ghost" className="gap-1 text-sm">
-              Ver mais <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        }
-      >
-        <Grid loading={mostWanted.isLoading} items={mostWanted.data ?? []} />
-      </Section>
 
       <Section
         title="Novos & Bombando"
