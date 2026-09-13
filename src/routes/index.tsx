@@ -26,7 +26,7 @@ import { ReviewsCarousel } from "@/components/reviews-carousel";
 import { fetchCategories, fetchProducts } from "@/lib/marketplace";
 import { PROTECTION_TIERS } from "@/lib/protection";
 import { formatPrice } from "@/lib/format";
-import { CategoryVisual } from "@/components/category-icon";
+import { CategoryVisual, getCategoryImage } from "@/components/category-icon";
 import { HeroMarquee } from "@/components/hero-marquee";
 import {
   Accordion,
@@ -462,7 +462,7 @@ function Home() {
                   search={{ q: "", cat: c.slug, sort: "recentes" }}
                   className="group overflow-hidden rounded-2xl border border-border bg-card text-center text-sm font-medium transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-glow"
                 >
-                  {c.display_mode === "image" && c.image_url ? (
+                  {getCategoryImage(c) ? (
                     <span className="block aspect-[4/3] w-full overflow-hidden bg-accent">
                       <CategoryVisual
                         category={c}

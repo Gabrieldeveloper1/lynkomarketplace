@@ -52,11 +52,27 @@ export function CategoryIcon({
 }
 
 type CategoryLike = {
+  slug?: string;
   name: string;
   icon: string;
   image_url?: string | null;
   display_mode?: string | null;
 };
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  contas: "/categories/contas.png",
+  jogos: "/categories/jogos.png",
+  moedas: "/categories/moedas-itens.png",
+  assinaturas: "/categories/assinaturas.png",
+  softwares: "/categories/softwares.png",
+  "gift-cards": "/categories/gift-cards.png",
+  servicos: "/categories/servicos.png",
+  "redes-sociais": "/categories/redes-sociais.png",
+};
+
+export function getCategoryImage(category: CategoryLike) {
+  return category.image_url || (category.slug ? CATEGORY_IMAGES[category.slug] : undefined);
+}
 
 /** Mostra a imagem da categoria quando definida, senão o ícone SVG. */
 export function CategoryVisual({
@@ -68,10 +84,9 @@ export function CategoryVisual({
   className?: string;
   imageClassName?: string;
 }) {
-  if (category.display_mode === "image" && category.image_url) {
-    return (
-      <img src={category.image_url} alt={category.name} loading="lazy" className={imageClassName} />
-    );
+  const image = getCategoryImage(category);
+  if (image) {
+    return <img src={image} alt={category.name} loading="lazy" className={imageClassName} />;
   }
   return <CategoryIcon name={category.icon} className={className} />;
 }

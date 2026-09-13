@@ -70,6 +70,10 @@ function HelpPage() {
             "Denuncie anúncios suspeitos",
           ],
         },
+        {
+          title: "Reporte de bugs",
+          body: "Se qualquer tela, pagamento, entrega ou recurso apresentar comportamento inesperado, reporte imediatamente pelo suporte administrativo no Discord. Envie a rota, horário, usuário, descrição e captura de tela. Nunca envie senhas, tokens ou chaves privadas.",
+        },
       ]}
       cta={{ label: "Explorar produtos", to: "/produtos" }}
     />

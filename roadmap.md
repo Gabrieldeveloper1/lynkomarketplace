@@ -1,4 +1,6 @@
-# Roadmap
+# Status operacional da Lynko
+
+A LynkoMarketplace está **100% operacional**. Os fluxos principais de compra, venda, Pix, entrega, suporte e segurança estão disponíveis.
 
 ## Concluído
 
@@ -15,6 +17,13 @@
 - Avaliações recentes em carrossel na página inicial
 - Notificações mais bonitas (cores, emojis, fonte e animações)
 
-## Em aberto
+## Manutenção contínua
 
-- Avisos push com o site totalmente fechado (precisa de servidor de push dedicado)
+- Monitoramento de pagamentos, pedidos e entregas
+- Melhorias de desempenho e experiência mobile
+- Aprimoramentos de atendimento e segurança
+- Correção imediata de bugs reportados
+
+## Reporte de bugs
+
+Ao encontrar qualquer comportamento inesperado, reporte imediatamente pelo suporte administrativo no Discord. Inclua a rota, horário, usuário afetado, descrição do problema e captura de tela quando possível. Nunca envie senhas, tokens ou chaves privadas.
