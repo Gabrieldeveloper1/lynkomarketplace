@@ -62,18 +62,15 @@ import { PROTECTION_TIERS } from "@/lib/protection";
 import { formatPrice } from "@/lib/format";
 import { CategoryVisual } from "@/components/category-icon";
 
-const BRAND_LOGO_URL = "https://i.ibb.co/DDk11nFh/lynko-market-logo.png";
+const BRAND_LOGO_URL = "/lynko-marketplace-logo.png";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
-  const { theme } = useTheme();
-
   return (
     <Link to="/" className="flex shrink-0 items-center" aria-label="Lynko Market início">
       <img
         src={BRAND_LOGO_URL}
         alt="Lynko Market"
         className={`${compact ? "h-8 w-10 object-cover object-left" : "h-8 w-auto sm:h-9"}`}
-        style={theme === "light" ? { filter: "invert(1)" } : undefined}
       />
     </Link>
   );

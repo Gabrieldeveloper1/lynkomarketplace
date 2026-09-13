@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AssetsRouteImport } from './routes/assets'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
@@ -58,6 +59,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AjudaRoute = AjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssetsRoute = AssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -231,6 +237,7 @@ const ApiPublicSitemapRoute = ApiPublicSitemapRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/assets': typeof AssetsRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-funciona': typeof ComoFuncionaRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
+  '/assets': typeof AssetsRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-funciona': typeof ComoFuncionaRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/ajuda': typeof AjudaRoute
+  '/assets': typeof AssetsRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
   '/como-funciona': typeof ComoFuncionaRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ajuda'
+    | '/assets'
     | '/auth'
     | '/blog'
     | '/como-funciona'
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ajuda'
+    | '/assets'
     | '/auth'
     | '/blog'
     | '/como-funciona'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/ajuda'
+    | '/assets'
     | '/auth'
     | '/blog'
     | '/como-funciona'
@@ -460,6 +472,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AjudaRoute: typeof AjudaRoute
+  AssetsRoute: typeof AssetsRoute
   AuthRoute: typeof AuthRoute
   BlogRoute: typeof BlogRouteWithChildren
   ComoFuncionaRoute: typeof ComoFuncionaRoute
@@ -505,6 +518,13 @@ declare module '@tanstack/react-router' {
       path: '/ajuda'
       fullPath: '/ajuda'
       preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assets': {
+      id: '/assets'
+      path: '/assets'
+      fullPath: '/assets'
+      preLoaderRoute: typeof AssetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -784,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AjudaRoute: AjudaRoute,
+  AssetsRoute: AssetsRoute,
   AuthRoute: AuthRoute,
   BlogRoute: BlogRouteWithChildren,
   ComoFuncionaRoute: ComoFuncionaRoute,

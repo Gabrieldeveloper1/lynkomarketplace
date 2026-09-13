@@ -2,13 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, MessageCircle, ShieldCheck } from "lucide-react";
 import { fetchSitePages } from "@/lib/marketplace";
-import { useTheme } from "@/components/theme-provider";
 import { ADMIN_SUPPORT_DISCORD_URL } from "@/lib/support";
 
-const BRAND_LOGO_URL = "https://i.ibb.co/DDk11nFh/lynko-market-logo.png";
+const BRAND_LOGO_URL = "/lynko-marketplace-logo.png";
 
 export function SiteFooter() {
-  const { theme } = useTheme();
   const { data: pages = [] } = useQuery({ queryKey: ["site-pages"], queryFn: fetchSitePages });
 
   const FALLBACK_LEGAL = [
@@ -24,12 +22,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <img
-              src={BRAND_LOGO_URL}
-              alt="Lynko Market"
-              className="h-9 w-auto"
-              style={theme === "light" ? { filter: "invert(1)" } : undefined}
-            />
+            <img src={BRAND_LOGO_URL} alt="Lynko Market" className="h-9 w-auto" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Plataforma para comprar e vender contas, itens digitais e serviços com intermédio
               seguro, suporte administrativo pelo Discord e acompanhamento de entrega.
@@ -118,6 +111,11 @@ export function SiteFooter() {
               <li>
                 <Link to="/como-funciona" className="transition-colors hover:text-foreground">
                   Como funciona
+                </Link>
+              </li>
+              <li>
+                <Link to="/assets" className="transition-colors hover:text-foreground">
+                  Assets da marca
                 </Link>
               </li>
               <li>
