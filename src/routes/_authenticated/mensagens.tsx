@@ -149,7 +149,7 @@ function Mensagens() {
   };
 
   return (
-    <div className="lynko-shell w-full min-w-0 py-5 sm:py-8">
+    <div className="mx-auto w-full max-w-7xl min-w-0 px-3 py-5 sm:px-4 sm:py-8">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary">
           <MessageSquare className="h-6 w-6" aria-hidden />
@@ -170,7 +170,7 @@ function Mensagens() {
 
       <div className="grid min-w-0 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside
-          className={`surface-card h-fit max-h-[600px] flex-col ${
+          className={`h-fit max-h-[600px] flex-col rounded-2xl border border-border bg-card ${
             mobileOpen ? "hidden lg:flex" : "flex"
           }`}
         >

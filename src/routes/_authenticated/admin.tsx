@@ -266,16 +266,9 @@ function Admin() {
     (w) => w.status === "requested",
   ).length;
   const pendingAppeals = (data?.appeals ?? []).filter((a) => a.status === "pending").length;
-  const reportOrders = (data?.orders ?? []) as Array<{
-    id: string;
-    status: string;
-    amount_cents: number;
-    fee_cents: number;
-    created_at: string;
-  }>;
   const filteredReportOrders = (() => {
     const since = reportPeriod === "all" ? 0 : Date.now() - Number(reportPeriod) * 86_400_000;
-    return reportOrders.filter((order) => {
+    return (data?.orders ?? []).filter((order) => {
       const inPeriod = since === 0 || new Date(order.created_at).getTime() >= since;
       const inStatus = reportStatus === "all" || order.status === reportStatus;
       return inPeriod && inStatus;

@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export function StarRating({
@@ -21,7 +21,7 @@ export function StarRating({
       {[1, 2, 3, 4, 5].map((n) => {
         const active = n <= value;
         const icon = (
-          <Star
+          <Icon.Star
             className={cn(
               dim,
               active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40",

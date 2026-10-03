@@ -5,19 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold tracking-tight cursor-pointer transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold tracking-tight cursor-pointer transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-px active:translate-y-0 active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        mono: "bg-foreground text-background hover:opacity-90",
-        gradient: "bg-primary text-primary-foreground hover:bg-primary/90",
-        soft: "bg-secondary text-secondary-foreground hover:bg-accent",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
+        default:
+          "btn-sheen bg-gradient-primary text-primary-foreground shadow-[0_8px_22px_-8px_oklch(0.55_0.26_295/0.7)] hover:shadow-glow hover:brightness-110",
+        mono: "btn-sheen bg-foreground text-background shadow-sm hover:opacity-90 hover:shadow-glow",
+        gradient:
+          "btn-sheen bg-gradient-primary text-primary-foreground shadow-[0_8px_22px_-8px_oklch(0.55_0.26_295/0.7)] hover:shadow-glow hover:brightness-110",
+        soft: "bg-primary/12 text-primary hover:bg-primary/20",
+        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-border bg-card/60 backdrop-blur hover:border-primary/50 hover:bg-accent hover:text-accent-foreground",
         contrast:
-          "border-2 border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border border-primary/60 bg-transparent text-foreground hover:bg-primary hover:text-primary-foreground hover:shadow-glow",
+        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "font-medium hover:bg-accent hover:text-accent-foreground",
         link: "font-medium text-foreground underline-offset-4 hover:underline hover:translate-y-0",
         command:

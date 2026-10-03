@@ -1,378 +1,800 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BadgeCheck,
-  Check,
-  ChevronRight,
-  LockKeyhole,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Store,
-  Zap,
-} from "lucide-react";
-import { fetchCategories, fetchProducts } from "@/lib/marketplace";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/product-card";
-import { CategoryVisual } from "@/components/category-icon";
+import { ReviewsCarousel } from "@/components/reviews-carousel";
+import { fetchCategories, fetchProducts } from "@/lib/marketplace";
+import { PROTECTION_TIERS } from "@/lib/protection";
+import { formatPrice } from "@/lib/format";
+import { CategoryVisual, getCategoryImage } from "@/components/category-icon";
+import { HeroMarquee } from "@/components/hero-marquee";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Icon, Orb, Rings, Sparkle } from "@/components/icons";
+import { SpotlightCard } from "@/components/lynko-ui";
+
+const FAQ_GROUPS: { id: string; label: string; items: { q: string; a: string }[] }[] = [
+  {
+    id: "compra",
+    label: "Processo de compra",
+    items: [
+      {
+        q: "Passo a passo: como comprar na Lynko?",
+        a: "1) Escolha o anúncio e a variação. 2) No checkout, selecione o nível de proteção. 3) Pague via Pix com QR Code ou copia e cola. 4) O pagamento é confirmado automaticamente. 5) A entrega aparece no chat do pedido e você acompanha cada etapa em tempo real.",
+      },
+      {
+        q: "Como funciona a entrega automática?",
+        a: "Quando o anúncio tem entrega automática, o vendedor carrega o estoque (chaves, contas, códigos) na dashboard. Assim que o pagamento é confirmado, o conteúdo é enviado no chat do pedido em segundos, sem intervenção humana.",
+      },
+      {
+        q: "O meu dinheiro fica protegido?",
+        a: "Sim. Todo o pagamento fica em custódia. O valor só é liberado ao vendedor depois de a entrega ser confirmada. Se algo der errado, abra uma disputa no chat e a equipe Lynko medeia.",
+      },
+      {
+        q: "Como acompanho o meu pedido?",
+        a: "Cada pedido tem uma página de rastreamento com estado em tempo real, histórico de eventos e recibo detalhado das taxas cobradas.",
+      },
+    ],
+  },
+  {
+    id: "venda",
+    label: "Processo de venda",
+    items: [
+      {
+        q: "Passo a passo: como vender na Lynko?",
+        a: "1) Crie a conta e abra a dashboard. 2) Publique o anúncio com fotos, descrição e variações. 3) Carregue o estoque de entrega automática. 4) A cada venda, a Lynko entrega e credita o valor no seu saldo. 5) Peça o saque via Pix e a equipe aprova a transferência.",
+      },
+      {
+        q: "Um anúncio pode ter várias opções?",
+        a: 'Pode. Um anúncio pode ter variações como "Netflix 1 dia", "Netflix 2 dias" ou "Netflix 3 dias", cada uma com preço e estoque próprios. O comprador escolhe a variação antes de pagar.',
+      },
+      {
+        q: "Quanto custa vender na Lynko?",
+        a: "Publicar é grátis. Cobramos 8% sobre o valor da venda, descontado automaticamente. O restante vai para o seu saldo e você saca por Pix na dashboard.",
+      },
+      {
+        q: "Como recebo o dinheiro das minhas vendas?",
+        a: "O saldo aparece na aba Carteira da dashboard. Você pode pedir saque de qualquer valor positivo disponível com a sua chave Pix; a taxa da plataforma é descontada automaticamente e o status aparece no histórico.",
+      },
+    ],
+  },
+  {
+    id: "verificacao",
+    label: "Verificação e taxas",
+    items: [
+      {
+        q: "Quais são os níveis de verificação?",
+        a: "Há dois níveis: Básico, para contas com e-mail confirmado, e Máximo, para identidade confirmada com documento e selfie.",
+      },
+      {
+        q: "Quais dados aparecem no meu perfil público?",
+        a: "Apenas o selo de conta verificada e informações não sensíveis que você informou (país, cidade, nome comercial e rede social). Foto do documento, selfie, número do documento e telefone nunca são públicos.",
+      },
+      {
+        q: "O que é o nível de proteção e por que aparece no checkout?",
+        a: "É a nossa taxa de serviço. Escolha no checkout entre Proteção Básica (+R$ 0,10), Proteção Média (+R$ 0,50) ou Proteção Máxima (+R$ 2,00). O valor é fixo em centavos, independentemente do preço do produto; muda apenas a rapidez da mediação e a cobertura de reembolso.",
+      },
+    ],
+  },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LynkoMarket — o marketplace do digital" },
+      { title: "LynkoMarketplace Produtos digitais com entrega automática" },
+      {
+        name: "google-site-verification",
+        content: "xVeXP1vN-Vlx0bHd1Rw9URLIKZrVdcNYeBGYCrjLA9g",
+      },
       {
         name: "description",
         content:
-          "Descubra, venda e receba produtos digitais com proteção, velocidade e reputação em uma só experiência.",
+          "Compre e venda contas, chaves e serviços digitais com entrega automática, vendedores verificados e pagamento protegido no LynkoMarketplace.",
       },
+      {
+        property: "og:title",
+        content: "LynkoMarketplace Produtos digitais com entrega automática",
+      },
+      {
+        property: "og:description",
+        content: "Entrega automática, vendedores verificados e pagamento protegido em custódia.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "index,follow,max-image-preview:large" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://www.lynkomarketplace.online/" },
+      { rel: "preconnect", href: "https://i.ibb.co" },
     ],
   }),
   component: Home,
 });
 
+function Section({
+  title,
+  subtitle,
+  icon,
+  children,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-3 sm:gap-4">
+        <div>
+          <h2 className="flex items-center gap-3 font-display text-xl font-extrabold tracking-tight sm:text-3xl">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow">
+              {icon}
+            </span>
+            {title}
+          </h2>
+          {subtitle && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{subtitle}</p>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Grid({
+  loading,
+  items,
+}: {
+  loading: boolean;
+  items: Awaited<ReturnType<typeof fetchProducts>>;
+}) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-72 rounded-3xl" />
+        ))}
+      </div>
+    );
+  }
+  if (!items.length) {
+    return (
+      <div className="relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-card/50 p-10 text-center text-sm text-muted-foreground">
+        <div className="absolute inset-0 bg-dots opacity-50" aria-hidden="true" />
+        <span className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+          <Icon.Package className="h-6 w-6" />
+        </span>
+        <p className="relative mt-4">Ainda não há anúncios publicados aqui. Seja o primeiro a vender!</p>
+        <div className="relative mt-4">
+          <Link to="/dashboard">
+            <Button>
+              <Icon.Plus className="h-4 w-4" /> Publicar anúncio
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      {items.map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </div>
+  );
+}
+
+const steps = [
+  {
+    icon: <Icon.Search className="h-5 w-5" />,
+    t: "1. O vendedor anuncia, você escolhe",
+    d: "Quem vende publica o anúncio; quem compra filtra por categoria, preço e reputação do vendedor.",
+  },
+  {
+    icon: <Icon.ShieldCheck className="h-5 w-5" />,
+    t: "2. O pagamento fica com o marketplace",
+    d: "A Lynko guarda o valor em custódia: o comprador paga com segurança e o vendedor só recebe depois da entrega.",
+  },
+  {
+    icon: <Icon.Zap className="h-5 w-5" />,
+    t: "3. Entrega confirmada, dinheiro liberado",
+    d: "O comprador recebe o produto no painel e o valor entra no saldo do vendedor para saque via Pix.",
+  },
+];
+
 function Home() {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const [term, setTerm] = useState("");
-  const categories = useQuery({
+  const navigate = useNavigate();
+  const [heroSearch, setHeroSearch] = useState("");
+  const categoriesQuery = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
     staleTime: 5 * 60 * 1000,
   });
-  const featured = useQuery({
-    queryKey: ["landing-featured"],
-    queryFn: () => fetchProducts({ sort: "vendidos", limit: 4, promotedFirst: true }),
-    staleTime: 60_000,
-  });
-  const latest = useQuery({
-    queryKey: ["landing-latest"],
+  const categories = categoriesQuery.data ?? [];
+  const recent = useQuery({
+    queryKey: ["products", "recent"],
     queryFn: () => fetchProducts({ sort: "recentes", limit: 8, promotedFirst: true }),
-    staleTime: 60_000,
+    staleTime: 60 * 1000,
   });
-  const categoryItems = (categories.data ?? []).slice(0, 8);
+  const promoted = useQuery({
+    queryKey: ["products", "promoted"],
+    queryFn: () => fetchProducts({ sort: "vendidos", limit: 4, promotedFirst: true }),
+    staleTime: 60 * 1000,
+  });
+  const mostWanted = useQuery({
+    queryKey: ["products", "most-wanted"],
+    queryFn: () => fetchProducts({ sort: "vendidos", limit: 8 }),
+    staleTime: 60 * 1000,
+  });
+  // A seção "Novos & Bombando" usa a mesma lista recente, sem repetir uma chamada ao Supabase.
+  const newAndHot = recent;
+  const subscriptions = useQuery({
+    queryKey: ["products", "subscriptions"],
+    queryFn: () => fetchProducts({ category: "assinaturas", sort: "vendidos", limit: 8 }),
+    staleTime: 60 * 1000,
+  });
 
-  const submitSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    navigate({ to: "/produtos", search: { q: term, cat: "todas", sort: "recentes" } });
+  const profileCtas: {
+    title: string;
+    desc: string;
+    icon: React.ReactNode;
+    points: string[];
+    link: React.ReactNode;
+  }[] = [
+    {
+      title: "Quero comprar",
+      desc: "Encontre o produto, pague por Pix e receba na hora.",
+      icon: <Icon.Search className="h-5 w-5" />,
+      points: [
+        "Entrega automática na página do pedido",
+        "Pagamento em custódia até a entrega",
+        "Chat direto com o vendedor",
+      ],
+      link: (
+        <Button asChild className="w-full">
+          <Link to="/produtos">
+            Ver anúncios <Icon.ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      ),
+    },
+    {
+      title: "Quero vender",
+      desc: "Publique grátis, venda no automático e saque por Pix.",
+      icon: <Icon.Store className="h-5 w-5" />,
+      points: [
+        "Variações com preço e estoque próprios",
+        "Saldo na carteira a cada venda",
+        "Saque de qualquer valor positivo disponível",
+      ],
+      link: (
+        <Button asChild variant="outline" className="w-full">
+          <Link to={user ? "/dashboard" : "/auth"}>
+            {user ? "Abrir minha dashboard" : "Criar conta de vendedor"}{" "}
+            <Icon.ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      ),
+    },
+    {
+      title: "Quero mais confiança",
+      desc: "Escolha o nível de verificação que combina com você.",
+      icon: <Icon.ShieldCheck className="h-5 w-5" />,
+      points: ["Básico com e-mail confirmado", "Máximo com documento e selfie"],
+      link: (
+        <Button asChild variant="outline" className="w-full">
+          <Link to={user ? "/verificacao" : "/auth"}>
+            Verificação de conta <Icon.ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      ),
+    },
+  ];
+
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "LynkoMarketplace",
+    url: "https://www.lynkomarketplace.online/",
+    description: "Marketplace de produtos digitais com entrega automática e pagamento protegido.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://www.lynkomarketplace.online/produtos?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
-    <div className="lynko-page">
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="lynko-grid-bg pointer-events-none absolute inset-0 opacity-70" />
-        <div className="lynko-orb lynko-orb-purple -right-24 top-10 h-80 w-80" />
-        <div className="lynko-orb lynko-orb-pink left-[38%] top-40 h-64 w-64" />
-        <div className="lynko-shell relative grid gap-12 pb-16 pt-14 sm:pb-24 sm:pt-20 lg:grid-cols-[1.04fr_.96fr] lg:items-center lg:gap-10 lg:pt-24">
-          <div>
-            <span className="eyebrow">A nova camada do digital</span>
-            <h1 className="mt-6 max-w-3xl text-[3.25rem] font-black leading-[.94] tracking-[-.075em] sm:text-6xl lg:text-[5.8rem]">
-              Descubra o que <span className="gradient-text">move</span> o seu próximo passo.
+    <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+      />
+      {/* HERO */}
+      <section className="relative overflow-hidden border-b border-primary/15">
+        <div className="aurora" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_25%,transparent_75%)]" aria-hidden="true" />
+        <Rings className="pointer-events-none absolute left-1/2 top-1/2 h-[46rem] w-[46rem] -translate-x-1/2 -translate-y-1/2 animate-spin-slow text-primary opacity-25" />
+        <Orb className="animate-float pointer-events-none absolute left-[6%] top-[22%] hidden h-24 w-24 opacity-90 md:block" />
+        <Orb className="animate-float-slow pointer-events-none absolute bottom-[26%] right-[7%] hidden h-16 w-16 opacity-80 md:block" />
+        <Sparkle className="animate-twinkle pointer-events-none absolute left-[22%] top-[14%] hidden h-5 w-5 text-primary md:block" />
+        <Sparkle className="animate-twinkle pointer-events-none absolute right-[20%] top-[30%] hidden h-4 w-4 text-[oklch(0.74_0.24_325)] md:block" />
+        <Sparkle className="animate-twinkle pointer-events-none absolute bottom-[34%] left-[14%] hidden h-3 w-3 text-primary md:block" />
+
+        <div className="relative mx-auto max-w-5xl px-4 pb-14 pt-14 text-center sm:pb-20 sm:pt-20">
+          <div className="mx-auto flex max-w-4xl flex-col items-center">
+            <span className="animate-rise mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary backdrop-blur">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              </span>
+              Compre via Pix. Receba com segurança.
+            </span>
+            <h1 className="animate-rise max-w-4xl font-display text-[2.35rem] font-extrabold leading-[1.02] tracking-tight [animation-delay:80ms] sm:text-6xl lg:text-7xl">
+              Produtos digitais com{" "}
+              <span className="hero-shimmer-text text-gradient">entrega automática.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Um marketplace feito para comprar sem ruído e vender com clareza. Produtos digitais,
-              vendedores reais e proteção em cada transação.
+            <p className="animate-rise mt-5 max-w-2xl text-sm text-muted-foreground [animation-delay:160ms] sm:mt-6 sm:text-lg">
+              Encontre produtos, compare vendedores e pague via Pix. A Lynko protege a compra e acompanha a
+              entrega do início ao fim.
             </p>
             <form
-              onSubmit={submitSearch}
-              className="surface-card mt-8 flex max-w-xl items-center gap-2 p-2 transition focus-within:border-primary/60 focus-within:shadow-glow"
+              className="animate-rise gradient-border mt-8 flex w-full max-w-2xl flex-col gap-2 rounded-3xl p-2 shadow-glow [animation-delay:240ms] sm:flex-row"
+              onSubmit={(event) => {
+                event.preventDefault();
+                navigate({
+                  to: "/produtos",
+                  search: { q: heroSearch, cat: "todas", sort: "recentes" },
+                });
+              }}
             >
-              <Search className="ml-2 h-5 w-5 shrink-0 text-muted-foreground" />
-              <input
-                value={term}
-                onChange={(event) => setTerm(event.target.value)}
-                placeholder="O que você quer encontrar hoje?"
-                className="h-12 min-w-0 flex-1 bg-transparent px-2 text-sm font-medium outline-none placeholder:text-muted-foreground"
-                aria-label="Buscar produtos"
-              />
-              <button className="inline-flex h-12 items-center gap-2 rounded-xl bg-gradient-primary px-4 text-sm font-extrabold text-primary-foreground shadow-glow transition hover:brightness-110">
-                Buscar <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
-            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-semibold text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" /> pagamento protegido
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-primary" /> entrega automática
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <BadgeCheck className="h-3.5 w-3.5 text-primary" /> reputação real
-              </span>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[31rem] lg:ml-auto">
-            <div className="surface-card relative overflow-hidden p-4 sm:p-5">
-              <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-              <div className="relative flex items-center justify-between border-b border-border pb-4">
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-primary">
-                    Lynko pulse
-                  </p>
-                  <p className="mt-1 text-sm font-bold">O que está acontecendo agora</p>
-                </div>
-                <span className="flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold text-emerald-400">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> ao vivo
-                </span>
-              </div>
-              <div className="relative mt-5 grid gap-3">
-                {[
-                  {
-                    title: "Gift cards e créditos",
-                    detail: "+ 24 anúncios hoje",
-                    icon: Store,
-                    tone: "bg-violet-400/12 text-violet-300",
-                  },
-                  {
-                    title: "Jogos & contas",
-                    detail: "mais procurados agora",
-                    icon: Sparkles,
-                    tone: "bg-pink-400/12 text-pink-300",
-                  },
-                  {
-                    title: "Serviços com entrega rápida",
-                    detail: "97% satisfação média",
-                    icon: Zap,
-                    tone: "bg-cyan-400/12 text-cyan-300",
-                  },
-                ].map(({ title, detail, icon: Icon, tone }, index) => (
-                  <div
-                    key={title}
-                    className="surface-card-soft flex items-center gap-3 p-3.5"
-                    style={{ transform: `translateX(${index * 8}px)` }}
-                  >
-                    <span className={`grid h-10 w-10 place-items-center rounded-xl ${tone}`}>
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold">{title}</p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">{detail}</p>
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                ))}
-              </div>
-              <div className="relative mt-5 grid grid-cols-3 gap-2 border-t border-border pt-4">
-                <Metric value="8k+" label="produtos" />
-                <Metric value="4.9" label="nota média" />
-                <Metric value="24/7" label="proteção" />
-              </div>
-            </div>
-            <div className="lynko-float absolute -bottom-8 -left-5 hidden rounded-2xl border border-primary/25 bg-card p-3 shadow-glow sm:flex sm:items-center sm:gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-400/12 text-emerald-400">
-                <Check className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-[11px] font-extrabold">Compra confirmada</p>
-                <p className="text-[10px] text-muted-foreground">entrega liberada em segundos</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="lynko-shell py-16 sm:py-20">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <span className="eyebrow">Explore por intenção</span>
-            <h2 className="mt-3 text-3xl font-black tracking-[-.055em] sm:text-4xl">
-              Comece pelo que <span className="text-primary">você procura.</span>
-            </h2>
-          </div>
-          <Link
-            to="/produtos"
-            search={{ q: "", cat: "todas", sort: "recentes" }}
-            className="hidden items-center gap-1 text-xs font-bold text-primary sm:flex"
-          >
-            Ver tudo <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-          {categoryItems.map((category, index) => (
-            <Link
-              key={category.slug}
-              to="/produtos"
-              search={{ q: "", cat: category.slug, sort: "recentes" }}
-              className="group surface-card-soft p-3 transition hover:-translate-y-1 hover:border-primary/50 hover:bg-accent/60"
-            >
-              <span
-                className={`grid aspect-square place-items-center rounded-xl ${index % 2 === 0 ? "bg-primary/12 text-primary" : "bg-white/5 text-foreground"}`}
-              >
-                <CategoryVisual
-                  category={category}
-                  className="h-6 w-6"
-                  imageClassName="h-full w-full rounded-xl object-cover"
+              <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
+                <Icon.Search className="h-5 w-5 shrink-0 text-primary" />
+                <input
+                  value={heroSearch}
+                  onChange={(event) => setHeroSearch(event.target.value)}
+                  placeholder="Procure por jogos, gift cards, IA, software, serviços..."
+                  aria-label="O que você está procurando?"
+                  className="h-12 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
-              </span>
-              <span className="mt-3 block truncate text-xs font-bold">{category.name}</span>
-              <span className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                explorar <ChevronRight className="h-3 w-3" />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="relative border-y border-border bg-card/30 py-16 sm:py-20">
-        <div className="lynko-shell">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <span className="eyebrow">Curadoria Lynko</span>
-              <h2 className="mt-3 text-3xl font-black tracking-[-.055em] sm:text-4xl">
-                Escolhas que já estão <span className="gradient-text">bombando.</span>
-              </h2>
-            </div>
-            <Link
-              to="/ofertas"
-              className="hidden items-center gap-1 text-xs font-bold text-primary sm:flex"
-            >
-              Ver ofertas <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.isLoading
-              ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-72 animate-pulse rounded-[1.35rem] bg-muted" />
-                ))
-              : (featured.data ?? []).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="lynko-shell grid gap-6 py-16 sm:py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-stretch">
-        <div className="surface-card relative overflow-hidden p-7 sm:p-9">
-          <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
-          <span className="eyebrow">Confiança por design</span>
-          <h2 className="relative mt-4 max-w-md text-3xl font-black tracking-[-.06em] sm:text-4xl">
-            Compre como se o produto já fosse seu.
-          </h2>
-          <p className="relative mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-            Do primeiro clique à entrega, cada etapa tem contexto. Você sabe quem vende, o que está
-            comprando e quando o pagamento é liberado.
-          </p>
-          <div className="relative mt-8 grid gap-3">
-            {[
-              {
-                icon: LockKeyhole,
-                title: "Pagamento em custódia",
-                text: "Seu dinheiro só segue quando a entrega acontece.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Proteção em camadas",
-                text: "Sinais de confiança visíveis antes da compra.",
-              },
-              {
-                icon: MessageIcon,
-                title: "Suporte humano",
-                text: "Conversa direta e moderação quando precisar.",
-              },
-            ].map(({ icon: Icon, title, text }) => (
-              <div key={title} className="flex gap-3">
-                <span className="icon-tile h-9 w-9 rounded-lg">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <div>
-                  <p className="text-sm font-bold">{title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{text}</p>
-                </div>
               </div>
-            ))}
+              <Button type="submit" size="xl" className="gap-2">
+                Buscar <Icon.ArrowRight className="h-4 w-4" />
+              </Button>
+            </form>
+            <div className="animate-rise mt-5 grid w-full gap-3 [animation-delay:320ms] sm:flex sm:w-auto sm:flex-wrap">
+              <Link to="/produtos" search={{ q: "", cat: "todas", sort: "recentes" }} className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
+                  Explorar ofertas <Icon.ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/dashboard" className="w-full sm:w-auto">
+                <Button size="lg" variant="soft" className="w-full gap-2 sm:w-auto">
+                  <Icon.Store className="h-4 w-4" /> Começar a vender
+                </Button>
+              </Link>
+            </div>
+
+            <div className="animate-rise mt-12 grid w-full max-w-2xl grid-cols-3 gap-3 [animation-delay:400ms] sm:gap-4">
+              {[
+                { v: "Pix", l: "Pagamento simples", i: <Icon.Pix className="h-5 w-5" /> },
+                { v: "100%", l: "Compra acompanhada", i: <Icon.ShieldCheck className="h-5 w-5" /> },
+                { v: "24/7", l: "Entrega automática", i: <Icon.Zap className="h-5 w-5" /> },
+              ].map((s) => (
+                <div key={s.l} className="glass rounded-2xl px-3 py-4">
+                  <span className="mx-auto grid h-9 w-9 place-items-center rounded-xl bg-primary/15 text-primary">{s.i}</span>
+                  <p className="mt-2 font-display text-xl font-extrabold text-gradient sm:text-3xl">{s.v}</p>
+                  <p className="text-[11px] text-muted-foreground sm:text-xs">{s.l}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TrustStat value="99,2%" label="entregas concluídas" />
-          <TrustStat value="4.9/5" label="experiência média" />
-          <TrustStat value="< 2 min" label="tempo de liberação" />
-          <TrustStat value="24/7" label="monitoramento" />
+
+        <div className="relative border-t border-border/60 bg-background/40 py-4 backdrop-blur">
+          <HeroMarquee />
         </div>
       </section>
 
-      <section className="lynko-shell border-t border-border py-16 sm:py-20">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <span className="eyebrow">Novo no marketplace</span>
-            <h2 className="mt-3 text-3xl font-black tracking-[-.055em] sm:text-4xl">
-              Acabou de chegar.
-            </h2>
-          </div>
-          <Link
-            to="/produtos"
-            search={{ q: "", cat: "todas", sort: "recentes" }}
-            className="hidden items-center gap-1 text-xs font-bold text-primary sm:flex"
-          >
-            Explorar novidades <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      <section className="border-b border-border bg-card/50 backdrop-blur" aria-label="Por que comprar na Lynko">
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            [Icon.Pix, "Pagamento via Pix"],
+            [Icon.ShieldCheck, "Compra protegida"],
+            [Icon.Verified, "Vendedores avaliados"],
+            [Icon.Zap, "Entrega rápida"],
+            [Icon.Users, "Suporte da Lynko"],
+          ].map(([Ic, label]) => {
+            const C = Ic as typeof Icon.Pix;
+            return (
+              <div key={label as string} className="flex items-center gap-2.5 text-sm font-semibold">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
+                  <C className="h-4 w-4" />
+                </span>
+                {label as string}
+              </div>
+            );
+          })}
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {(latest.data ?? []).slice(0, 4).map((product) => (
-            <ProductCard key={product.id} product={product} />
+      </section>
+
+      {/* CATEGORIAS */}
+      <Section
+        title="Categorias do marketplace"
+        subtitle="Escolha uma categoria para comprar ou para descobrir onde anunciar o seu produto."
+        icon={<Icon.Layers className="h-5 w-5" />}
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {categoriesQuery.isLoading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-36 rounded-3xl" />
+              ))
+            : categories.map((c) => (
+                <Link
+                  key={c.slug}
+                  to="/produtos"
+                  search={{ q: "", cat: c.slug, sort: "recentes" }}
+                  className="group relative overflow-hidden rounded-3xl border border-border bg-card text-center text-sm font-medium shadow-card transition duration-300 hover:-translate-y-1.5 hover:border-primary/60 hover:shadow-glow"
+                >
+                  {getCategoryImage(c) ? (
+                    <span className="block aspect-[4/3] w-full overflow-hidden bg-accent">
+                      <CategoryVisual
+                        category={c}
+                        imageClassName="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </span>
+                  ) : (
+                    <span className="mx-auto mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+                      <CategoryVisual category={c} className="h-5 w-5" />
+                    </span>
+                  )}
+                  <span className="block px-3 py-3">
+                    <span className="block">{c.name}</span>
+                    {c.product_count ? (
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {c.product_count} {c.product_count === 1 ? "produto" : "produtos"}
+                      </span>
+                    ) : (
+                      <span className="mt-1 block text-[11px] leading-tight text-muted-foreground">
+                        Seja o primeiro vendedor
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              ))}
+        </div>
+      </Section>
+
+      <Section
+        title="Em Destaque"
+        subtitle="Seleção especial de produtos impulsionados e bem avaliados."
+        icon={<Icon.Flame className="h-5 w-5" />}
+        action={
+          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
+            <Button variant="soft" size="sm" className="gap-1 rounded-full">
+              Ver todos <Icon.ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        }
+      >
+        <Grid loading={promoted.isLoading} items={promoted.data ?? []} />
+      </Section>
+
+      <Section
+        title="Mais Procurados da Semana"
+        subtitle="Os anúncios com maior procura e mais vendas na plataforma."
+        icon={<Icon.Trend className="h-5 w-5" />}
+        action={
+          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
+            <Button variant="soft" size="sm" className="gap-1 rounded-full">
+              Ver mais <Icon.ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        }
+      >
+        <Grid loading={mostWanted.isLoading} items={mostWanted.data ?? []} />
+      </Section>
+
+      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-8">
+        <div className="gradient-border relative overflow-hidden rounded-[2rem] p-6 shadow-glow sm:p-10">
+          <div className="aurora opacity-70" aria-hidden="true" />
+          <Rings className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 text-primary opacity-40" />
+          <div className="relative grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
+            <div>
+              <Badge className="mb-4 gap-1">
+                <Icon.Crown className="h-3 w-3" /> Programa Lynko Founders
+              </Badge>
+              <h2 className="max-w-2xl text-2xl font-extrabold sm:text-4xl">
+                Seja um dos primeiros vendedores da Lynko.
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                Estamos abrindo espaço para quem quer construir sua loja desde o começo. Publique
+                gratuitamente, ganhe destaque inicial e ajude a formar o marketplace brasileiro de
+                produtos digitais.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                {["Publicação gratuita", "Destaque inicial", "Selo Vendedor Fundador"].map(
+                  (item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border border-border bg-background/70 px-3 py-1.5"
+                    >
+                      {item}
+                    </span>
+                  ),
+                )}
+              </div>
+              <Link to={user ? "/dashboard" : "/auth"} className="mt-7 inline-flex">
+                <Button size="lg" className="gap-2">
+                  {user ? "Abrir minha loja" : "Começar a vender"}{" "}
+                  <Icon.ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="rounded-3xl border border-border bg-card/80 p-5 shadow-card backdrop-blur">
+              <p className="eyebrow">
+                O que vem primeiro
+              </p>
+              <div className="mt-4 grid gap-3">
+                {["Publique seu produto", "Construa sua reputação", "Venda e receba via Pix"].map(
+                  (item, index) => (
+                    <div
+                      key={item}
+                      className="flex items-center gap-3 rounded-xl bg-background/70 p-3 text-sm font-semibold"
+                    >
+                      <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-primary text-xs text-primary-foreground shadow-glow">
+                        {index + 1}
+                      </span>
+                      {item}
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Section
+        title="Novos & Bombando"
+        subtitle="Produtos recém-publicados que já estão chamando atenção."
+        icon={<Icon.Sparkles className="h-5 w-5" />}
+      >
+        <Grid loading={newAndHot.isLoading} items={newAndHot.data ?? []} />
+      </Section>
+
+      {!!subscriptions.data?.length && (
+        <Section
+          title="Assinaturas"
+          subtitle="Planos e acessos recorrentes para você encontrar tudo em um só lugar."
+          icon={<Icon.Refresh className="h-5 w-5" />}
+          action={
+            <Link to="/produtos" search={{ q: "", cat: "assinaturas", sort: "vendidos" }}>
+              <Button variant="soft" size="sm" className="gap-1 rounded-full">
+                Ver assinaturas <Icon.ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          }
+        >
+          <Grid loading={subscriptions.isLoading} items={subscriptions.data ?? []} />
+        </Section>
+      )}
+
+      <Section
+        title="Anúncios publicados recentemente"
+        subtitle="Os últimos produtos colocados à venda pelos vendedores."
+        icon={<Icon.Clock className="h-5 w-5" />}
+        action={
+          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "recentes" }}>
+            <Button variant="soft" size="sm" className="gap-1 rounded-full">
+              Ver todos <Icon.ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        }
+      >
+        <Grid loading={recent.isLoading} items={recent.data ?? []} />
+      </Section>
+
+      {/* COMO FUNCIONA */}
+      <Section
+        title="Como funciona o LynkoMarketplace"
+        subtitle="Conectamos quem compra e quem vende a negociação é entre vocês, a proteção é nossa."
+        icon={<Icon.Sparkles className="h-5 w-5" />}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {steps.map((s, i) => (
+            <SpotlightCard key={s.t} className="relative overflow-hidden p-5 sm:p-6">
+              <span className="absolute right-5 top-3 font-display text-6xl font-black text-primary/10">
+                {i + 1}
+              </span>
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+                {s.icon}
+              </span>
+              <p className="mt-5 font-display text-base font-bold">{s.t}</p>
+              <p className="mt-1.5 text-sm text-muted-foreground">{s.d}</p>
+            </SpotlightCard>
           ))}
         </div>
+      </Section>
+
+      {/* PROTEÇÃO / TAXAS */}
+      <Section
+        title="Taxa de serviço justa"
+        subtitle="Taxa fixa em centavos, igual para qualquer valor de compra. Somos justos em todos os níveis."
+        icon={<Icon.ShieldCheck className="h-5 w-5" />}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {PROTECTION_TIERS.map((t, i) => (
+            <div
+              key={t.id}
+              className={`relative rounded-3xl border bg-card p-6 transition duration-300 hover:-translate-y-1 ${
+                i === 1 ? "gradient-border shadow-glow" : "border-border shadow-card"
+              }`}
+            >
+              {i === 1 && (
+                <Badge className="absolute -top-3 left-6 bg-gradient-primary text-primary-foreground">
+                  Mais escolhida
+                </Badge>
+              )}
+              <p className="text-sm font-semibold">{t.name}</p>
+              <p className="mt-2 font-display text-3xl font-extrabold text-gradient">
+                +{formatPrice(t.feeCents)}
+                <span className="ml-1 text-xs font-medium text-muted-foreground">por compra</span>
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">{t.tagline}</p>
+              <ul className="mt-4 grid gap-2 text-sm">
+                {t.benefits.map((b) => (
+                  <li key={b} className="flex items-start gap-2">
+                    <Icon.CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span className="text-muted-foreground">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* AVALIAÇÕES RECENTES */}
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-xl font-extrabold sm:text-3xl">Avaliações <span className="text-gradient">recentes</span></h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              O que os compradores estão dizendo agora mesmo na Lynko.
+            </p>
+          </div>
+        </div>
+        <ReviewsCarousel />
       </section>
 
-      <section className="lynko-shell pb-20">
-        <div className="relative overflow-hidden rounded-[1.65rem] border border-primary/25 bg-gradient-primary p-8 text-primary-foreground shadow-glow sm:p-12">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/15 blur-3xl" />
-          <div className="relative flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+      {/* CTA VENDEDORES */}
+
+      <section className="mx-auto max-w-7xl px-4 pb-4">
+        <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-card p-6 shadow-card sm:p-12">
+          <div className="aurora opacity-60" aria-hidden="true" />
+          <div className="relative grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[.18em] text-white/70">
-                Para quem cria e vende
-              </span>
-              <h2 className="mt-3 max-w-xl text-3xl font-black tracking-[-.06em] sm:text-5xl">
-                Seu produto merece um lugar à altura.
+              <Badge variant="secondary" className="mb-4 gap-1">
+                <Icon.Chart className="h-3 w-3" /> Para vendedores
+              </Badge>
+              <h2 className="font-display text-2xl font-extrabold tracking-tight sm:text-4xl">
+                Venda 24 horas por dia, mesmo dormindo
               </h2>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-white/75">
-                Publique em minutos, automatize a entrega e transforme reputação em recorrência.
+              <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
+                Cadastre o estoque de chaves uma vez e a Lynko entrega automaticamente a cada venda.
+                Acompanhe saldo, avaliações e seguidores no painel e saque via Pix quando quiser.
               </p>
+              <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
+                <Link to="/dashboard" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full gap-2 sm:w-auto">
+                    <Icon.Layers className="h-5 w-5" /> Abrir minha loja
+                  </Button>
+                </Link>
+                <Link to="/vendedores" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
+                    <Icon.Users className="h-4 w-4" /> Ver vendedores
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <Link
-              to={user ? "/dashboard" : "/auth"}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-extrabold text-violet-700 transition hover:bg-white/90"
-            >
-              Começar a vender <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            <div className="grid gap-3">
+              {[
+                "Estoque automático de chaves e contas",
+                "Anúncios impulsionados aparecem em primeiro",
+                "Perfil com banner, seguidores e avaliações",
+                "Saque via Pix direto no painel",
+              ].map((b) => (
+                <div
+                  key={b}
+                  className="flex items-center gap-3 rounded-2xl border border-border bg-background/70 px-4 py-3.5 text-sm backdrop-blur-xl transition hover:border-primary/40"
+                >
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><Icon.Check className="h-4 w-4" /></span>
+                  {b}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
-    </div>
-  );
-}
 
-function Metric({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <p className="metric-number text-lg font-black">{value}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{label}</p>
+      {/* CTAs POR PERFIL */}
+      <Section
+        title="Qual é o seu perfil?"
+        subtitle="Somos o marketplace no meio: cada lado tem um caminho pronto para começar."
+        icon={<Icon.Users className="h-5 w-5" />}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {profileCtas.map((c) => (
+            <SpotlightCard
+              key={c.title}
+              className="flex flex-col p-5 transition duration-300 hover:-translate-y-1 sm:p-6"
+            >
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+                {c.icon}
+              </span>
+              <p className="mt-4 font-display text-base font-bold">{c.title}</p>
+              <p className="mt-1 flex-1 text-sm text-muted-foreground">{c.desc}</p>
+              <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
+                {c.points.map((p) => (
+                  <li key={p} className="flex items-start gap-2">
+                    <Icon.CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {p}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5">{c.link}</div>
+            </SpotlightCard>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        title="FAQ do processo"
+        subtitle="Passo a passo de compra, de venda e das verificações sem letras miúdas."
+        icon={<Icon.Help className="h-5 w-5" />}
+      >
+        <div className="mx-auto max-w-3xl">
+          <Tabs defaultValue={FAQ_GROUPS[0].id}>
+            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
+              {FAQ_GROUPS.map((g) => (
+                <TabsTrigger key={g.id} value={g.id}>
+                  {g.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {FAQ_GROUPS.map((g) => (
+              <TabsContent key={g.id} value={g.id} className="mt-4">
+                <Accordion type="single" collapsible className="w-full">
+                  {g.items.map((f, i) => (
+                    <AccordionItem key={f.q} value={`${g.id}-${i}`} className="mb-2 rounded-2xl border border-border bg-card/60 px-4 transition data-[state=open]:border-primary/40 data-[state=open]:shadow-card">
+                      <AccordionTrigger className="text-left text-sm font-semibold hover:no-underline">
+                        {f.q}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                        {f.a}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </Section>
     </div>
-  );
-}
-function TrustStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="surface-card flex flex-col justify-end p-6">
-      <span className="text-3xl font-black tracking-[-.07em] text-primary sm:text-4xl">
-        {value}
-      </span>
-      <span className="mt-2 text-xs font-semibold text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-function MessageIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className={className}
-    >
-      <path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.6 8.6 0 0 1-3.1-.6L4 20l1.6-3.6A7.2 7.2 0 0 1 4 11.5 7.5 7.5 0 0 1 12 4a7.5 7.5 0 0 1 8 7.5Z" />
-      <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" strokeLinecap="round" />
-    </svg>
   );
 }

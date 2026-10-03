@@ -20,7 +20,7 @@ export function PublicInfoPage({
   title: string;
   description: string;
   sections: InfoSection[];
-  cta?: { label: string; to: "/produtos" | "/auth" | "/ajuda" | "/produtos-proibidos" };
+  cta?: { label: string; to: "/produtos" | "/auth" | "/ajuda" };
 }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:py-16">

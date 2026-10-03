@@ -1,19 +1,29 @@
-import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/icons";
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("h-4 w-4 animate-spin", className)} />;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={cn("h-4 w-4 animate-spin", className)}
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity=".2" strokeWidth="3" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 /** Tela de carregamento usada enquanto uma página é preparada. */
 export function PageLoader({ label = "Carregando…" }: { label?: string }) {
   return (
     <div className="grid min-h-[50vh] w-full place-items-center px-4">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <span className="relative grid h-16 w-16 place-items-center">
-          <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
-          <span className="absolute inset-2 rounded-full bg-primary/10" />
-          <Loader2 className="relative h-7 w-7 animate-spin text-primary" />
+      <div className="flex flex-col items-center gap-5 text-center">
+        <span className="relative grid h-20 w-20 place-items-center">
+          <span className="absolute inset-0 animate-pulse-ring rounded-full bg-primary/30" />
+          <span className="absolute inset-0 animate-spin-slow rounded-full border border-dashed border-primary/50" />
+          <LogoMark className="relative h-11 w-11 animate-float" />
         </span>
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
       </div>
@@ -37,7 +47,7 @@ export function CardsSkeleton({ count = 8 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="h-64 animate-pulse rounded-2xl border border-border bg-card"
+          className="h-72 animate-pulse rounded-3xl border border-border bg-gradient-surface"
           style={{ animationDelay: `${i * 60}ms` }}
         />
       ))}

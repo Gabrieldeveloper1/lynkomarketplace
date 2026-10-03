@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/icons";
 import { useAuth } from "@/hooks/use-auth";
 import { fetchFavoriteIds, setFavorite } from "@/lib/marketplace";
 
@@ -65,7 +65,7 @@ export function FavoriteButton({
         disabled={toggle.isPending}
         className={cn("gap-2", active && "border-primary/60 text-primary", className)}
       >
-        <Heart className={cn("h-4 w-4 transition", active && "fill-current scale-110")} />
+        <Icon.Heart className={cn("h-4 w-4 transition", active && "fill-current scale-110")} />
         {active ? "Nos favoritos" : "Favoritar"}
       </Button>
     );
@@ -78,12 +78,12 @@ export function FavoriteButton({
       onClick={onClick}
       disabled={toggle.isPending}
       className={cn(
-        "grid h-9 w-9 place-items-center rounded-full border border-border bg-background/80 backdrop-blur transition hover:scale-110 hover:border-primary/60",
-        active && "border-primary/60 text-primary",
+        "grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-black/45 text-white backdrop-blur transition hover:scale-110 hover:border-primary/70 hover:bg-primary/60",
+        active && "border-primary/70 bg-primary/70 text-white",
         className,
       )}
     >
-      <Heart className={cn("h-4 w-4 transition", active && "fill-current")} />
+      <Icon.Heart className={cn("h-4 w-4 transition", active && "fill-current")} />
     </button>
   );
 }

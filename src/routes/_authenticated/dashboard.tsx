@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import supportArt from "@/assets/dashboard-support.jpg";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -80,7 +79,9 @@ import { ORDER_FLOW, orderStatusClass, orderStatusLabel, orderStepIndex } from "
 
 import { AdminBadge } from "@/components/site-header";
 import { ADMIN_SUPPORT_DISCORD_URL } from "@/lib/support";
-import { PageLoader } from "@/components/loading";
+import { PageLoader, Spinner } from "@/components/loading";
+import { Icon, Constellation, Orb, Rings } from "@/components/icons";
+import { EmptyState, PageHeader, Panel, Pill, SectionTitle, StatCard } from "@/components/lynko-ui";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -98,6 +99,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   }),
   component: Dashboard,
 });
+
 
 function BanNotice() {
   const { profile } = useAuth();
@@ -121,23 +123,24 @@ function BanNotice() {
   };
 
   return (
-    <div className="mb-8 rounded-3xl border border-destructive/40 bg-destructive/5 p-6">
-      <h2 className="flex items-center gap-2 text-lg font-bold text-destructive">
-        <ShieldAlert className="h-5 w-5" /> Conta suspensa
+    <div className="relative mb-6 overflow-hidden rounded-3xl border border-destructive/40 bg-destructive/5 p-6">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-destructive/20 blur-3xl" />
+      <h2 className="relative flex items-center gap-2 font-display text-lg font-bold text-destructive">
+        <Icon.Alert className="h-5 w-5" /> Conta suspensa
       </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Podes continuar a navegar e ver produtos, mas não podes comprar, vender, enviar mensagens
-        nem abrir denúncias. Motivo:{" "}
+      <p className="relative mt-2 text-sm text-muted-foreground">
+        Podes continuar a navegar e ver produtos, mas não podes comprar, vender, enviar mensagens nem
+        abrir denúncias. Motivo:{" "}
         <strong className="text-foreground">
           {(profile as { ban_reason?: string | null })?.ban_reason || "Violação dos termos de uso."}
         </strong>
       </p>
       {sent ? (
-        <p className="mt-4 rounded-xl border border-border bg-card p-4 text-sm">
+        <p className="relative mt-4 rounded-2xl border border-border bg-card p-4 text-sm">
           Apelação em análise. Vais ser notificado assim que a equipe decidir.
         </p>
       ) : (
-        <div className="mt-4 grid gap-2">
+        <div className="relative mt-4 grid gap-2">
           <Label htmlFor="appeal">Apelação (explica o que aconteceu)</Label>
           <Textarea
             id="appeal"
@@ -147,12 +150,8 @@ function BanNotice() {
             onChange={(e) => setMsg(e.target.value)}
             placeholder="Descreve a tua versão dos fatos e porque a suspensão deve ser revista."
           />
-          <Button
-            disabled={busy}
-            onClick={send}
-            className="w-fit bg-gradient-primary text-primary-foreground"
-          >
-            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Enviar apelação
+          <Button disabled={busy} onClick={send} className="w-fit">
+            {busy ? <Spinner /> : <Icon.Message className="h-4 w-4" />} Enviar apelação
           </Button>
         </div>
       )}
@@ -160,42 +159,63 @@ function BanNotice() {
   );
 }
 
-function Stat({
-  label,
-  value,
-  hint,
+type NavItem = { v: string; i: React.ReactNode; l: string };
+
+function QuickAction({
   icon,
+  title,
+  text,
+  onClick,
 }: {
-  label: string;
-  value: string;
-  hint?: string;
   icon: React.ReactNode;
+  title: string;
+  text: string;
+  onClick: () => void;
 }) {
   return (
-    <Card className="overflow-hidden border-border transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </CardTitle>
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
-          {icon}
-        </span>
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-extrabold">{value}</p>
-        {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
-      </CardContent>
-    </Card>
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3.5 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-glow"
+    >
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary transition group-hover:bg-gradient-primary group-hover:text-primary-foreground">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold">{title}</span>
+        <span className="block truncate text-[11px] text-muted-foreground">{text}</span>
+      </span>
+      <Icon.ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+    </button>
   );
 }
 
-function InfoCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+function OrderLine({
+  id,
+  title,
+  status,
+  amount,
+  highlight,
+}: {
+  id: string;
+  title: string;
+  status: string;
+  amount: number;
+  highlight?: boolean;
+}) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      {icon}
-      <p className="mt-3 text-sm font-bold">{title}</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>
-    </div>
+    <Link
+      to="/pedido/$id"
+      params={{ id }}
+      className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/40 p-3 transition hover:border-primary/50 hover:bg-accent/50"
+    >
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
+        <Icon.Receipt className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">{title}</span>
+      <Badge className={orderStatusClass(status)}>{orderStatusLabel(status)}</Badge>
+      <span className={`text-sm font-bold ${highlight ? "text-gradient" : ""}`}>{formatPrice(amount)}</span>
+    </Link>
   );
 }
 
@@ -345,95 +365,100 @@ function Dashboard() {
 
   if (authLoading) return <PageLoader label="Preparando sua central de vendas…" />;
 
-  const NAV_GROUPS: {
-    group: string;
-    items: { v: string; i: React.ReactNode; l: string; beta?: boolean }[];
-  }[] = [
+  const NAV_GROUPS: { group: string; items: NavItem[] }[] = [
     {
       group: "Visão geral",
-      items: [{ v: "visao", i: <LayoutDashboard className="h-4 w-4" />, l: "Resumo" }],
+      items: [{ v: "visao", i: <Icon.Dashboard className="h-4 w-4" />, l: "Resumo" }],
     },
     {
       group: "Negociações",
       items: [
-        { v: "compras", i: <ShoppingBag className="h-4 w-4" />, l: "Minhas compras" },
-        { v: "vendas", i: <TrendingUp className="h-4 w-4" />, l: "Minhas vendas" },
-        { v: "anuncios", i: <Package className="h-4 w-4" />, l: "Meus anúncios" },
-        { v: "novo", i: <Plus className="h-4 w-4" />, l: "Publicar anúncio" },
+        { v: "compras", i: <Icon.Bag className="h-4 w-4" />, l: "Minhas compras" },
+        { v: "vendas", i: <Icon.Trend className="h-4 w-4" />, l: "Minhas vendas" },
+        { v: "anuncios", i: <Icon.Package className="h-4 w-4" />, l: "Meus anúncios" },
+        { v: "novo", i: <Icon.PlusCircle className="h-4 w-4" />, l: "Publicar anúncio" },
       ],
     },
     {
       group: "Financeiro",
       items: [
-        { v: "carteira", i: <Wallet className="h-4 w-4" />, l: "Carteira e saques" },
-        { v: "extrato", i: <ReceiptText className="h-4 w-4" />, l: "Extrato" },
-        { v: "metricas", i: <BarChart3 className="h-4 w-4" />, l: "Métricas" },
+        { v: "carteira", i: <Icon.Wallet className="h-4 w-4" />, l: "Carteira e saques" },
+        { v: "extrato", i: <Icon.Receipt className="h-4 w-4" />, l: "Extrato" },
+        { v: "metricas", i: <Icon.Chart className="h-4 w-4" />, l: "Métricas" },
       ],
     },
     {
       group: "Conta",
-      items: [{ v: "perfil", i: <UserIcon className="h-4 w-4" />, l: "Perfil e loja" }],
-    },
-    {
-      group: "Reputação",
-      items: [{ v: "avaliacoes", i: <ThumbsUp className="h-4 w-4" />, l: "Minhas avaliações" }],
+      items: [
+        { v: "perfil", i: <Icon.User className="h-4 w-4" />, l: "Perfil e loja" },
+        { v: "avaliacoes", i: <Icon.Star className="h-4 w-4" />, l: "Minhas avaliações" },
+      ],
     },
   ];
 
+  const shortcutCls =
+    "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground";
+  const name = profile?.display_name || profile?.username;
+
   return (
-    <div className="dashboard-surface mx-auto min-w-0 max-w-7xl overflow-x-hidden px-3 py-4 sm:px-4 sm:py-8">
+    <div className="relative mx-auto min-w-0 max-w-7xl overflow-x-hidden px-3 py-5 sm:px-4 sm:py-8">
       {profile?.banned && <BanNotice />}
 
       <Tabs
         value={tab}
         onValueChange={setTab}
-        className="grid min-w-0 gap-4 lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-6 lg:items-start"
+        className="grid min-w-0 gap-5 lg:grid-cols-[272px_minmax(0,1fr)] lg:items-start lg:gap-7"
       >
         <aside className="min-w-0 lg:sticky lg:top-24">
-          <div className="relative z-0 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-surface p-4 text-card-foreground shadow-card">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-11 w-11 shrink-0">
-                <AvatarImage src={profile?.avatar_url ?? undefined} />
-                <AvatarFallback>
-                  {(profile?.username ?? "U").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+          {/* Cartão do usuário */}
+          <div className="gradient-border relative overflow-hidden rounded-3xl p-4 shadow-card">
+            <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-primary/25 blur-3xl" />
+            <div className="relative flex items-center gap-3">
+              <span className="relative">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={profile?.avatar_url ?? undefined} />
+                  <AvatarFallback>{(profile?.username ?? "U").slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card bg-success" />
+              </span>
               <div className="min-w-0">
                 <p className="flex min-w-0 items-center gap-1.5 text-sm font-bold">
-                  <span className="truncate">
-                    Olá, {profile?.display_name || profile?.username}
-                  </span>
-                  {profile?.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />}
-                  {isAdmin && <AdminBadge />}
+                  <span className="truncate">{name}</span>
+                  {profile?.verified && <Icon.Verified className="h-4 w-4 shrink-0 text-primary" />}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">Bem-vindo ao painel</p>
+                <p className="truncate text-xs text-muted-foreground">@{profile?.username}</p>
+                {isAdmin && <AdminBadge className="mt-1" />}
               </div>
             </div>
+            <div className="relative mt-4 rounded-2xl bg-gradient-primary p-3.5 text-primary-foreground">
+              <p className="flex items-center gap-1.5 text-[11px] font-medium opacity-85">
+                <Icon.Wallet className="h-3.5 w-3.5" /> Saldo disponível
+              </p>
+              <p className="mt-1 font-display text-xl font-extrabold">
+                {profile ? formatPrice(profile.balance_cents ?? 0) : "—"}
+              </p>
+            </div>
             {profile?.username && (
-              <Link to="/vendedor/$slug" params={{ slug: profile.username }} className="mt-3 block">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="relative z-10 w-full justify-start gap-2 bg-background/80"
-                >
-                  <Store className="h-4 w-4" /> Ver meu perfil
+              <Link to="/vendedor/$slug" params={{ slug: profile.username }} className="relative mt-3 block">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Icon.Store className="h-4 w-4" /> Ver minha loja
+                  <Icon.ArrowUpRight className="ml-auto h-3.5 w-3.5" />
                 </Button>
               </Link>
             )}
           </div>
 
+          {/* Navegação */}
           <div className="mt-3 overflow-x-auto pb-1 lg:overflow-visible lg:pb-0">
-            <TabsList className="flex h-auto w-max min-w-full flex-row justify-start gap-1 rounded-2xl border border-primary/15 bg-sidebar p-2 shadow-card lg:w-full lg:flex-col lg:items-stretch lg:gap-0">
+            <TabsList className="flex h-auto w-max min-w-full flex-row justify-start gap-1 rounded-3xl border border-border bg-card/70 p-2 shadow-card backdrop-blur lg:w-full lg:flex-col lg:items-stretch lg:gap-0">
               {NAV_GROUPS.map((g) => (
                 <div key={g.group} className="contents lg:block lg:w-full">
-                  <p className="hidden px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground lg:block">
-                    {g.group}
-                  </p>
+                  <p className="eyebrow hidden px-3 pb-1 pt-3 lg:flex">{g.group}</p>
                   {g.items.map((t) => (
                     <TabsTrigger
                       key={t.v}
                       value={t.v}
-                      className="shrink-0 gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium lg:w-full lg:justify-start data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                      className="group relative shrink-0 gap-2.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:text-foreground lg:w-full lg:justify-start data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow"
                     >
                       {t.i} {t.l}
                     </TabsTrigger>
@@ -441,27 +466,15 @@ function Dashboard() {
                 </div>
               ))}
               <div className="contents lg:block lg:w-full">
-                <p className="hidden px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground lg:block">
-                  Atalhos
-                </p>
-                <Link
-                  to="/notificacoes"
-                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
-                >
-                  <Bell className="h-4 w-4" /> Notificações
+                <p className="eyebrow hidden px-3 pb-1 pt-3 lg:flex">Atalhos</p>
+                <Link to="/notificacoes" className={shortcutCls}>
+                  <Icon.Bell className="h-4 w-4" /> Notificações
                 </Link>
-                <Link
-                  to="/mensagens"
-                  search={{ c: undefined }}
-                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
-                >
-                  <MessageCircleQuestion className="h-4 w-4" /> Mensagens
+                <Link to="/mensagens" search={{ c: undefined }} className={shortcutCls}>
+                  <Icon.Message className="h-4 w-4" /> Mensagens
                 </Link>
-                <Link
-                  to="/verificacao"
-                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
-                >
-                  <ShieldCheck className="h-4 w-4" /> Verificação
+                <Link to="/verificacao" className={shortcutCls}>
+                  <Icon.ShieldCheck className="h-4 w-4" /> Verificação
                 </Link>
               </div>
             </TabsList>
@@ -471,103 +484,107 @@ function Dashboard() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={tab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="min-w-0 overflow-x-hidden"
           >
-            <TabsContent value="visao" className="mt-0">
-              <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-surface p-5 shadow-card sm:p-7">
-                <div
-                  className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
-                  aria-hidden
-                />
-                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <TabsContent value="visao" className="mt-0 grid gap-5">
+              {/* Hero */}
+              <div className="relative overflow-hidden rounded-[2rem] border border-primary/25 bg-gradient-surface p-6 shadow-card sm:p-8">
+                <div className="aurora" aria-hidden="true" />
+                <div className="absolute inset-0 bg-grid opacity-70 [mask-image:radial-gradient(ellipse_80%_90%_at_100%_0%,#000,transparent_70%)]" aria-hidden="true" />
+                <Constellation className="pointer-events-none absolute right-4 top-4 hidden h-36 w-64 text-primary opacity-70 sm:block" />
+                <div className="relative flex flex-col gap-6">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Pill icon={<Icon.Rocket className="h-3 w-3" />}>Central do vendedor</Pill>
+                    {profile?.verified && (
+                      <Pill tone="green" icon={<Icon.ShieldCheck className="h-3 w-3" />}>
+                        Verificado
+                      </Pill>
+                    )}
+                  </div>
                   <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-                        <LayoutDashboard className="h-3 w-3" /> Central do vendedor
-                      </Badge>
-                      {profile?.verified && (
-                        <Badge className="gap-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10">
-                          <ShieldCheck className="h-3 w-3" /> Verificado
-                        </Badge>
-                      )}
-                    </div>
-                    <h1 className="mt-3 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-                      Olá, {profile?.display_name || profile?.username}
+                    <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+                      Olá, <span className="text-gradient">{name}</span>
                     </h1>
                     <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                      Acompanhe sua operação, cuide dos anúncios e transforme visitas em vendas com
-                      mais clareza.
+                      Acompanhe sua operação, cuide dos anúncios e transforme visitas em vendas com mais
+                      clareza.
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      onClick={() => setTab("novo")}
-                      className="gap-2 bg-gradient-primary text-primary-foreground"
-                    >
-                      <Plus className="h-4 w-4" /> Novo anúncio
+                  <div className="flex flex-wrap gap-2.5">
+                    <Button size="lg" onClick={() => setTab("novo")} className="gap-2">
+                      <Icon.Plus className="h-4 w-4" /> Novo anúncio
                     </Button>
-                    {profile?.username && (
-                      <Link to="/vendedor/$slug" params={{ slug: profile.username }}>
-                        <Button variant="outline" className="gap-2 bg-background/70">
-                          <Store className="h-4 w-4" /> Ver loja
-                        </Button>
-                      </Link>
-                    )}
+                    <Button size="lg" variant="outline" onClick={() => setTab("carteira")} className="gap-2">
+                      <Icon.Wallet className="h-4 w-4" /> Sacar saldo
+                    </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
-                <div className="rounded-2xl bg-gradient-primary p-5 text-primary-foreground shadow-glow">
-                  <p className="text-xs font-medium opacity-80">Saldo disponível</p>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-2xl font-extrabold">
-                      {profile ? (
-                        formatPrice(profile.balance_cents ?? 0)
-                      ) : (
-                        <Skeleton className="h-8 w-28 bg-primary-foreground/20" />
-                      )}
+              {/* Métricas */}
+              <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-glow animate-rise">
+                  <Rings className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 text-white opacity-40" />
+                  <div className="relative flex items-start justify-between">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] opacity-85">
+                      Saldo disponível
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setTab("carteira")}
-                      className="rounded-lg bg-background/20 px-3 py-1.5 text-xs font-semibold text-primary-foreground backdrop-blur transition hover:bg-background/30"
-                    >
-                      Realizar saque
-                    </button>
+                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur">
+                      <Icon.Wallet className="h-4 w-4" />
+                    </span>
                   </div>
-                </div>
-                <div className="rounded-2xl border border-border bg-card p-5">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Receita das vendas pagas
-                  </p>
-                  <p className="mt-2 text-2xl font-extrabold">
-                    {sales.isLoading ? <Skeleton className="h-8 w-28" /> : formatPrice(revenue)}
-                  </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {paidSales.length} venda{paidSales.length === 1 ? "" : "s"} paga
-                    {paidSales.length === 1 ? "" : "s"}, já com as taxas descontadas
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-border bg-card p-5">
-                  <p className="text-xs font-medium text-muted-foreground">Saque pendente</p>
-                  <p className="mt-2 text-2xl font-extrabold">
-                    {withdrawals.isLoading ? (
-                      <Skeleton className="h-8 w-28" />
+                  <p className="relative mt-3 font-display text-[1.75rem] font-extrabold leading-none">
+                    {profile ? (
+                      formatPrice(profile.balance_cents ?? 0)
                     ) : (
-                      formatPrice(profile?.pending_cents ?? 0)
+                      <Skeleton className="h-8 w-28 bg-white/25" />
                     )}
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => setTab("carteira")}
+                    className="relative mt-3 inline-flex items-center gap-1 rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold backdrop-blur transition hover:bg-white/30"
+                  >
+                    Realizar saque <Icon.ArrowRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
+                <StatCard
+                  delay={80}
+                  label="Receita das vendas"
+                  icon={<Icon.Trend className="h-4 w-4" />}
+                  tone="green"
+                  value={sales.isLoading ? <Skeleton className="h-8 w-28" /> : formatPrice(revenue)}
+                  hint={`${paidSales.length} venda${paidSales.length === 1 ? "" : "s"} paga${paidSales.length === 1 ? "" : "s"}, já com as taxas descontadas`}
+                />
+                <StatCard
+                  delay={160}
+                  label="Saque pendente"
+                  icon={<Icon.Clock className="h-4 w-4" />}
+                  tone="amber"
+                  value={
+                    withdrawals.isLoading ? <Skeleton className="h-8 w-28" /> : formatPrice(profile?.pending_cents ?? 0)
+                  }
+                  hint="Aguardando análise ou pagamento"
+                />
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-3 sm:gap-4">
+              {/* Atalhos */}
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <QuickAction icon={<Icon.PlusCircle className="h-5 w-5" />} title="Publicar anúncio" text="Crie em 4 passos" onClick={() => setTab("novo")} />
+                <QuickAction icon={<Icon.Package className="h-5 w-5" />} title="Meus anúncios" text={`${myProducts.data?.length ?? 0} publicados`} onClick={() => setTab("anuncios")} />
+                <QuickAction icon={<Icon.Chart className="h-5 w-5" />} title="Métricas" text="Desempenho da loja" onClick={() => setTab("metricas")} />
+                <QuickAction icon={<Icon.User className="h-5 w-5" />} title="Perfil e loja" text="Foto, banner e bio" onClick={() => setTab("perfil")} />
+              </div>
+
+              {/* Informativos */}
+              <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
                 <InfoCard
-                  icon={<AlertTriangle className="h-5 w-5 text-warning" />}
+                  tone={profile?.verified ? "green" : "amber"}
+                  icon={profile?.verified ? <Icon.Verified className="h-5 w-5" /> : <Icon.Alert className="h-5 w-5" />}
                   title={profile?.verified ? "Conta verificada" : "Conta não verificada"}
                   text={
                     profile?.verified
@@ -575,133 +592,75 @@ function Dashboard() {
                       : "Complete dados e segurança para ganhar mais confiança nas negociações."
                   }
                 />
-                <InfoCard
-                  icon={<Clock className="h-5 w-5 text-muted-foreground" />}
-                  title="Prazos de entrega"
-                  text="Acompanhe prazos combinados e evite conversas perdidas."
-                />
-                <InfoCard
-                  icon={<Bell className="h-5 w-5 text-muted-foreground" />}
-                  title="Alertas importantes"
-                  text="Notificações de pagamento, entrega e suporte ficam centralizadas."
-                />
+                <InfoCard icon={<Icon.Clock className="h-5 w-5" />} title="Prazos de entrega" text="Acompanhe prazos combinados e evite conversas perdidas." />
+                <InfoCard icon={<Icon.Bell className="h-5 w-5" />} title="Alertas importantes" text="Notificações de pagamento, entrega e suporte ficam centralizadas." />
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4">
-                <div
-                  className="relative overflow-hidden rounded-2xl border border-border bg-card bg-cover bg-center p-5"
-                  style={{ backgroundImage: `url(${supportArt})` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-card via-card/90 to-card/40" />
-                  <div className="relative">
-                    <p className="font-display text-sm font-bold">Suporte administrativo</p>
-                    <p className="mt-1 max-w-[30ch] text-xs text-muted-foreground">
-                      Tire dúvidas sobre a conta e o site diretamente com os administradores no
-                      Discord.
-                    </p>
-                    <Button
-                      asChild
-                      size="sm"
-                      className="mt-4 gap-2 bg-gradient-primary text-primary-foreground"
-                    >
-                      <a href={ADMIN_SUPPORT_DISCORD_URL} target="_blank" rel="noreferrer">
-                        <MessageCircleQuestion className="h-4 w-4" />
-                        Falar no Discord
-                      </a>
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-card">
+                  <Orb className="animate-float-slow pointer-events-none absolute -right-4 -top-4 h-24 w-24 opacity-70" />
+                  <p className="relative flex items-center gap-2 font-display text-sm font-bold">
+                    <Icon.Discord className="h-4 w-4 text-primary" /> Suporte administrativo
+                  </p>
+                  <p className="relative mt-1.5 max-w-[32ch] text-xs text-muted-foreground">
+                    Tire dúvidas sobre a conta e o site diretamente com os administradores no Discord.
+                  </p>
+                  <Button asChild size="sm" className="relative mt-4 gap-2">
+                    <a href={ADMIN_SUPPORT_DISCORD_URL} target="_blank" rel="noreferrer">
+                      <Icon.Message className="h-4 w-4" /> Falar no Discord
+                    </a>
+                  </Button>
+                </div>
+                <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-card">
+                  <Rings className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 text-primary opacity-40" />
+                  <p className="relative flex items-center gap-2 font-display text-sm font-bold">
+                    <Icon.ShieldCheck className="h-4 w-4 text-primary" /> Segurança garantida
+                  </p>
+                  <p className="relative mt-1.5 max-w-[32ch] text-xs text-muted-foreground">
+                    O pagamento permanece protegido até a confirmação da entrega.
+                  </p>
+                  <Link to="/protecao" className="relative mt-4 inline-block">
+                    <Button size="sm" variant="outline" className="gap-2">
+                      <Icon.ArrowUpRight className="h-4 w-4" /> Entender proteção
                     </Button>
-                  </div>
-                </div>
-                <div
-                  className="relative overflow-hidden rounded-2xl border border-border bg-card bg-cover bg-center p-5"
-                  style={{ backgroundImage: `url(${supportArt})` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-card via-card/90 to-card/40" />
-                  <div className="relative">
-                    <p className="font-display text-sm font-bold">Segurança garantida</p>
-                    <p className="mt-1 max-w-[26ch] text-xs text-muted-foreground">
-                      O pagamento permanece protegido até a confirmação da entrega.
-                    </p>
-                    <Link to="/protecao" className="mt-4 inline-block">
-                      <Button
-                        size="sm"
-                        className="gap-2 bg-gradient-primary text-primary-foreground"
-                      >
-                        <ArrowUpRight className="h-4 w-4" /> Entender proteção
-                      </Button>
-                    </Link>
-                  </div>
+                  </Link>
                 </div>
               </div>
 
-              <div className="mt-4">
-                <WarningsCard />
-              </div>
+              <WarningsCard />
 
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <p className="font-display text-base font-bold">Últimas vendas</p>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Panel>
+                  <SectionTitle icon={<Icon.Trend className="h-4 w-4" />} title="Últimas vendas" hint="Seus pedidos mais recentes"
+                    action={<button type="button" onClick={() => setTab("vendas")} className="text-xs font-semibold text-primary hover:underline">Ver todas</button>} />
                   {(sales.data ?? []).length === 0 ? (
-                    <p className="mt-3 text-sm text-muted-foreground">Ainda sem vendas.</p>
+                    <EmptyState icon={<Icon.Trend className="h-6 w-6" />} title="Ainda sem vendas" text="Publique um anúncio para começar a vender." className="py-8" />
                   ) : (
-                    <div className="mt-3 grid gap-2">
+                    <div className="grid gap-2">
                       {(sales.data ?? []).slice(0, 4).map((o) => (
-                        <Link
-                          key={o.id}
-                          to="/pedido/$id"
-                          params={{ id: o.id }}
-                          className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition hover:border-primary/40"
-                        >
-                          <span className="min-w-0 flex-1 truncate text-sm">
-                            {(o as { product?: { title?: string } }).product?.title ?? "Produto"}
-                          </span>
-                          <Badge className={orderStatusClass(o.status)}>
-                            {orderStatusLabel(o.status)}
-                          </Badge>
-                          <span className="text-sm font-bold text-primary">
-                            {formatPrice(o.seller_amount_cents)}
-                          </span>
-                        </Link>
+                        <OrderLine key={o.id} id={o.id} title={(o as { product?: { title?: string } }).product?.title ?? "Produto"} status={o.status} amount={o.seller_amount_cents} highlight />
                       ))}
                     </div>
                   )}
-                </div>
-
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <p className="font-display text-base font-bold">Últimas compras</p>
+                </Panel>
+                <Panel>
+                  <SectionTitle icon={<Icon.Bag className="h-4 w-4" />} title="Últimas compras" hint="O que você comprou"
+                    action={<button type="button" onClick={() => setTab("compras")} className="text-xs font-semibold text-primary hover:underline">Ver todas</button>} />
                   {(purchases.data ?? []).length === 0 ? (
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      Você ainda não comprou nada.
-                    </p>
+                    <EmptyState icon={<Icon.Bag className="h-6 w-6" />} title="Nenhuma compra ainda" text="Explore o marketplace e encontre algo para você." className="py-8" />
                   ) : (
-                    <div className="mt-3 grid gap-2">
+                    <div className="grid gap-2">
                       {(purchases.data ?? []).slice(0, 4).map((o) => (
-                        <Link
-                          key={o.id}
-                          to="/pedido/$id"
-                          params={{ id: o.id }}
-                          className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition hover:border-primary/40"
-                        >
-                          <span className="min-w-0 flex-1 truncate text-sm">
-                            {(o as { product?: { title?: string } }).product?.title ?? "Produto"}
-                          </span>
-                          <Badge className={orderStatusClass(o.status)}>
-                            {orderStatusLabel(o.status)}
-                          </Badge>
-                          <span className="text-sm font-bold">{formatPrice(o.amount_cents)}</span>
-                        </Link>
+                        <OrderLine key={o.id} id={o.id} title={(o as { product?: { title?: string } }).product?.title ?? "Produto"} status={o.status} amount={o.amount_cents} />
                       ))}
                     </div>
                   )}
-                </div>
+                </Panel>
               </div>
             </TabsContent>
 
             <TabsContent value="anuncios" className="mt-0">
-              <MyProducts
-                products={myProducts.data ?? []}
-                categories={categories}
-                onChange={() => myProducts.refetch()}
-              />
+              <MyProducts products={myProducts.data ?? []} categories={categories} onChange={() => myProducts.refetch()} />
             </TabsContent>
 
             <TabsContent value="novo" className="mt-0">
@@ -719,8 +678,9 @@ function Dashboard() {
             </TabsContent>
 
             <TabsContent value="vendas" className="mt-0">
+              <PageHeader eyebrow="Negociações" title="Minhas vendas" description="Entregue, acompanhe e receba." icon={<Icon.Trend className="h-5 w-5" />} />
               {(sales.data ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Ainda sem vendas.</p>
+                <EmptyState icon={<Icon.Trend className="h-7 w-7" />} title="Ainda sem vendas" text="Quando alguém comprar um dos seus anúncios, aparece aqui." />
               ) : (
                 <div className="grid gap-3">
                   {(sales.data ?? []).map((o) => (
@@ -763,6 +723,28 @@ function Dashboard() {
     </div>
   );
 }
+
+function InfoCard({
+  icon,
+  title,
+  text,
+  tone = "violet",
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+  tone?: "violet" | "green" | "amber";
+}) {
+  const tones = { violet: "bg-primary/12 text-primary", green: "bg-success/15 text-success", amber: "bg-warning/20 text-warning" };
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5 shadow-card transition hover:border-primary/40">
+      <span className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>{icon}</span>
+      <p className="mt-3 font-display text-sm font-bold">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
 
 type MyProduct = {
   id: string;
@@ -1316,6 +1298,7 @@ function EditProduct({
   );
 }
 
+
 function NewProduct({
   categories,
   onCreated,
@@ -1333,20 +1316,29 @@ function NewProduct({
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
+  const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    if (!category && categories[0]) setCategory(categories[0].slug);
+  }, [categories, category]);
 
   const steps = [
-    { title: "Informações", description: "Nome e descrição" },
-    { title: "Preço e categoria", description: "Posicionamento do anúncio" },
-    { title: "Entrega e mídia", description: "Como o cliente recebe" },
-    { title: "Revisão", description: "Confira antes de publicar" },
+    { title: "Informações", description: "Nome e descrição", icon: <Icon.Doc className="h-4 w-4" /> },
+    { title: "Preço", description: "Valor e categoria", icon: <Icon.Tag className="h-4 w-4" /> },
+    { title: "Entrega e mídia", description: "Como o cliente recebe", icon: <Icon.Image className="h-4 w-4" /> },
+    { title: "Revisão", description: "Confira e publique", icon: <Icon.Rocket className="h-4 w-4" /> },
   ];
+
+  const priceCents = Math.round(Number(price.replace(",", ".")) * 100) || 0;
+  const fee = Math.round(priceCents * FEE_RATE);
+  const net = Math.max(0, priceCents - fee);
+  const categoryName = categories.find((c) => c.slug === category)?.name;
 
   const nextStep = () => {
     if (step === 1 && title.trim().length < 4)
       return toast.error("Informe um título com pelo menos 4 caracteres.");
     if (step === 2) {
-      const cents = Math.round(Number(price.replace(",", ".")) * 100);
-      if (!cents || cents < 100) return toast.error("Informe um preço mínimo de R$ 1,00.");
+      if (!priceCents || priceCents < 100) return toast.error("Informe um preço mínimo de R$ 1,00.");
       if (!category) return toast.error("Escolha uma categoria.");
     }
     setStep((current) => Math.min(4, current + 1));
@@ -1354,7 +1346,7 @@ function NewProduct({
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const priceCents = Math.round(Number(price.replace(",", ".")) * 100);
+    if (step < 4) return nextStep();
     if (!priceCents || priceCents < 100) return toast.error("Preço mínimo R$ 1,00.");
     if (!category) return toast.error("Escolha uma categoria.");
     if (title.trim().length < 4) return toast.error("Informe um título válido.");
@@ -1382,8 +1374,8 @@ function NewProduct({
     onCreated();
   };
 
-  const upload = async (files: FileList | null) => {
-    if (!files?.length || !user) return;
+  const upload = async (files: FileList | File[] | null) => {
+    if (!files || !files.length || !user) return;
     try {
       const remaining = Math.max(0, 5 - images.length);
       const urls = await Promise.all(
@@ -1398,248 +1390,379 @@ function NewProduct({
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className="max-w-3xl rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6"
-    >
-      <div className="mb-7 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Novo anúncio
-          </p>
-          <h2 className="mt-1 text-2xl font-extrabold">Monte uma vitrine que converte</h2>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            Preencha cada etapa com calma. Um anúncio claro reduz dúvidas e aumenta a confiança do
-            comprador.
-          </p>
-        </div>
-        <div className="hidden rounded-2xl bg-primary/10 p-3 text-primary sm:block">
-          <Package className="h-6 w-6" />
-        </div>
-      </div>
-      <ol className="mb-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {steps.map((item, index) => {
-          const number = index + 1;
-          const done = number < step;
-          return (
-            <li key={item.title} className="min-w-0">
-              <div
-                className={`flex items-center gap-2 border-b-2 pb-3 ${number <= step ? "border-primary" : "border-border"}`}
-              >
-                <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${number <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
+      <form onSubmit={submit} className="min-w-0">
+        <PageHeader
+          eyebrow="Novo anúncio"
+          title="Monte uma vitrine que converte"
+          description="Preencha cada etapa com calma. Um anúncio claro reduz dúvidas e aumenta a confiança do comprador."
+          icon={<Icon.Rocket className="h-5 w-5" />}
+        />
+
+        {/* Etapas */}
+        <ol className="mb-6 grid grid-cols-4 gap-2">
+          {steps.map((item, index) => {
+            const number = index + 1;
+            const done = number < step;
+            const current = number === step;
+            return (
+              <li key={item.title} className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => number < step && setStep(number)}
+                  disabled={number > step}
+                  className={`relative w-full overflow-hidden rounded-2xl border p-3 text-left transition ${
+                    current
+                      ? "border-primary/60 bg-primary/10 shadow-glow"
+                      : done
+                        ? "border-primary/30 bg-card hover:border-primary/60"
+                        : "border-border bg-card/50 opacity-70"
+                  }`}
                 >
-                  {done ? <Check className="h-4 w-4" /> : number}
-                </span>
-                <span className="hidden min-w-0 sm:block">
-                  <span className="block truncate text-xs font-semibold">{item.title}</span>
-                  <span className="block truncate text-[10px] text-muted-foreground">
-                    {item.description}
-                  </span>
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-
-      {step === 1 && (
-        <div className="grid gap-5">
-          <div className="grid gap-2">
-            <Label htmlFor="p-title">Título do anúncio</Label>
-            <Input
-              id="p-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              maxLength={120}
-              placeholder="Ex.: Conta premium com acesso imediato"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Seja específico e destaque o principal benefício. {title.length}/120
-            </p>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="p-desc">Descrição completa</Label>
-            <Textarea
-              id="p-desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={8}
-              maxLength={4000}
-              placeholder="Explique exatamente o que será entregue, condições, limitações e suporte..."
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Use Markdown para organizar títulos, listas e informações importantes.{" "}
-              {description.length}/4000
-            </p>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="grid gap-5">
-          <div className="grid gap-2">
-            <Label htmlFor="p-price">Preço de venda (R$)</Label>
-            <Input
-              id="p-price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-              inputMode="decimal"
-              placeholder="49,90"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Taxa da plataforma: {Math.round(FEE_RATE * 100)}% por venda.
-            </p>
-          </div>
-          <div className="grid gap-2">
-            <Label>Categoria</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Escolha onde seu anúncio será encontrado" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c.slug} value={c.slug}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">
-            <p className="font-semibold">Dica de posicionamento</p>
-            <p className="mt-1 text-muted-foreground">
-              Escolha a categoria mais específica e mantenha o título alinhado ao que o comprador
-              procura.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="grid gap-5">
-          <div className="flex items-center justify-between rounded-2xl border border-border p-4">
-            <div>
-              <Label htmlFor="p-auto" className="flex items-center gap-2 text-sm font-semibold">
-                <Zap className="h-4 w-4 text-primary" /> Entrega automática
-              </Label>
-              <p className="mt-1 text-xs text-muted-foreground">
-                O produto será liberado automaticamente após o pagamento confirmado.
-              </p>
-            </div>
-            <Switch id="p-auto" checked={auto} onCheckedChange={setAuto} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="p-delivery">Orientações de entrega</Label>
-            <Textarea
-              id="p-delivery"
-              value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
-              rows={4}
-              maxLength={1200}
-              placeholder={
-                auto
-                  ? "Explique o formato, prazo e suporte após a entrega automática..."
-                  : "Explique o prazo, formato e condições da entrega manual..."
-              }
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="p-img">Imagens do produto (até 5)</Label>
-            <Input
-              id="p-img"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => upload(e.target.files)}
-            />
-            {images.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-5">
-                {images.map((img, index) => (
-                  <div
-                    key={img}
-                    className="group relative aspect-video overflow-hidden rounded-xl border border-border"
+                  <span
+                    className={`grid h-8 w-8 place-items-center rounded-xl text-xs font-bold ${
+                      current || done ? "bg-gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}
                   >
-                    <img
-                      src={img}
-                      alt={`Imagem ${index + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      aria-label="Remover imagem"
-                      onClick={() => setImages((prev) => prev.filter((item) => item !== img))}
-                      className="absolute right-1 top-1 rounded-full bg-background/80 p-1 opacity-0 transition group-hover:opacity-100"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+                    {done ? <Icon.Check className="h-4 w-4" /> : item.icon}
+                  </span>
+                  <span className="mt-2 hidden truncate text-xs font-bold sm:block">{item.title}</span>
+                  <span className="hidden truncate text-[10px] text-muted-foreground sm:block">{item.description}</span>
+                  {current && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-primary" />}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+
+        <Panel>
+          {step === 1 && (
+            <div className="grid gap-5">
+              <div className="grid gap-2">
+                <Label htmlFor="p-title">Título do anúncio</Label>
+                <Input
+                  id="p-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  maxLength={120}
+                  placeholder="Ex.: Conta premium com acesso imediato"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Seja específico e destaque o principal benefício. {title.length}/120
+                </p>
               </div>
+              <div className="grid gap-2">
+                <Label htmlFor="p-desc">Descrição completa</Label>
+                <Textarea
+                  id="p-desc"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={9}
+                  maxLength={4000}
+                  placeholder="Explique exatamente o que será entregue, condições, limitações e suporte..."
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Use Markdown para organizar títulos, listas e informações importantes. {description.length}/4000
+                </p>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="grid gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="p-price">Preço de venda</Label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-display text-sm font-bold text-primary">
+                    R$
+                  </span>
+                  <Input
+                    id="p-price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                    inputMode="decimal"
+                    placeholder="49,90"
+                    className="h-14 pl-12 font-display text-2xl font-extrabold"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-3 text-center">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Preço</p>
+                    <p className="text-sm font-bold">{formatPrice(priceCents)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Taxa {Math.round(FEE_RATE * 100)}%
+                    </p>
+                    <p className="text-sm font-bold text-destructive">− {formatPrice(fee)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Você recebe</p>
+                    <p className="text-sm font-extrabold text-gradient">{formatPrice(net)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Categoria</Label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {categories.map((c) => {
+                    const on = c.slug === category;
+                    return (
+                      <button
+                        key={c.slug}
+                        type="button"
+                        onClick={() => setCategory(c.slug)}
+                        className={`flex items-center gap-2.5 rounded-2xl border p-3 text-left text-sm font-medium transition ${
+                          on
+                            ? "border-primary/70 bg-primary/12 text-foreground shadow-glow"
+                            : "border-border bg-background/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                        }`}
+                      >
+                        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${on ? "bg-gradient-primary text-primary-foreground" : "bg-muted"}`}>
+                          {on ? <Icon.Check className="h-4 w-4" /> : <Icon.Tag className="h-4 w-4" />}
+                        </span>
+                        <span className="truncate">{c.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4 text-sm">
+                <Icon.Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <p className="text-muted-foreground">
+                  <strong className="text-foreground">Dica de posicionamento:</strong> escolha a categoria
+                  mais específica e mantenha o título alinhado ao que o comprador procura.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid gap-6">
+              <div className="grid gap-2">
+                <Label>Tipo de entrega</Label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    { v: true, t: "Automática", d: "Liberada logo após o pagamento confirmado.", i: <Icon.Zap className="h-5 w-5" /> },
+                    { v: false, t: "Manual", d: "Você entrega pelo chat do pedido.", i: <Icon.Message className="h-5 w-5" /> },
+                  ].map((o) => {
+                    const on = auto === o.v;
+                    return (
+                      <button
+                        key={o.t}
+                        type="button"
+                        onClick={() => setAuto(o.v)}
+                        className={`relative flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
+                          on ? "border-primary/70 bg-primary/10 shadow-glow" : "border-border bg-background/40 hover:border-primary/40"
+                        }`}
+                      >
+                        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${on ? "bg-gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                          {o.i}
+                        </span>
+                        <span>
+                          <span className="block text-sm font-bold">{o.t}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">{o.d}</span>
+                        </span>
+                        {on && <Icon.CheckCircle className="absolute right-3 top-3 h-5 w-5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="p-delivery">Orientações de entrega</Label>
+                <Textarea
+                  id="p-delivery"
+                  value={deliveryNote}
+                  onChange={(e) => setDeliveryNote(e.target.value)}
+                  rows={4}
+                  maxLength={1200}
+                  placeholder={
+                    auto
+                      ? "Explique o formato, prazo e suporte após a entrega automática..."
+                      : "Explique o prazo, formato e condições da entrega manual..."
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="p-img">Imagens do produto (até 5)</Label>
+                <label
+                  htmlFor="p-img"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragging(false);
+                    void upload(e.dataTransfer.files);
+                  }}
+                  className={`relative flex cursor-pointer flex-col items-center gap-2 overflow-hidden rounded-3xl border-2 border-dashed px-6 py-9 text-center transition ${
+                    dragging ? "border-primary bg-primary/10" : "border-primary/30 bg-background/40 hover:border-primary/60 hover:bg-primary/5"
+                  }`}
+                >
+                  <div className="absolute inset-0 bg-dots opacity-50" aria-hidden="true" />
+                  <span className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+                    <Icon.Upload className="h-6 w-6" />
+                  </span>
+                  <span className="relative text-sm font-semibold">Arraste as imagens ou clique para enviar</span>
+                  <span className="relative text-[11px] text-muted-foreground">
+                    {images.length}/5 enviadas · PNG, JPG, WEBP
+                  </span>
+                  <input
+                    id="p-img"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => {
+                      void upload(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2.5 pt-2 sm:grid-cols-5">
+                    {images.map((img, index) => (
+                      <div key={img} className="group relative aspect-video overflow-hidden rounded-2xl border border-border">
+                        <img src={img} alt={`Imagem ${index + 1}`} className="h-full w-full object-cover" />
+                        {index === 0 && (
+                          <span className="absolute left-1.5 top-1.5 rounded-full bg-gradient-primary px-2 py-0.5 text-[9px] font-bold uppercase text-primary-foreground">
+                            Capa
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          aria-label="Remover imagem"
+                          onClick={() => setImages((prev) => prev.filter((item) => item !== img))}
+                          className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-white opacity-0 transition group-hover:opacity-100"
+                        >
+                          <Icon.X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="grid gap-3">
+              <div className="rounded-2xl border border-border bg-background/50 p-4">
+                <p className="eyebrow">Título</p>
+                <p className="mt-1 font-display font-bold">{title || "Ainda não informado"}</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-border bg-background/50 p-4">
+                  <p className="eyebrow">Preço</p>
+                  <p className="mt-1 font-display font-extrabold text-gradient">{priceCents ? formatPrice(priceCents) : "—"}</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-background/50 p-4">
+                  <p className="eyebrow">Você recebe</p>
+                  <p className="mt-1 font-display font-bold">{priceCents ? formatPrice(net) : "—"}</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-background/50 p-4">
+                  <p className="eyebrow">Entrega</p>
+                  <p className="mt-1 font-display font-bold">{auto ? "Automática" : "Manual"}</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border bg-background/50 p-4">
+                <p className="eyebrow">Descrição</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {description || "Nenhuma descrição informada."}
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5 rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
+                <Icon.CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                <p>
+                  Depois de publicar, você poderá editar, pausar, destacar, abastecer o estoque e administrar
+                  variações em “Meus anúncios”.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+            <Button type="button" variant="ghost" disabled={step === 1 || busy} onClick={() => setStep((c) => Math.max(1, c - 1))}>
+              <Icon.ChevronLeft className="h-4 w-4" /> Voltar
+            </Button>
+            {step < 4 ? (
+              <Button type="button" onClick={nextStep}>
+                Continuar <Icon.ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button type="submit" disabled={busy} size="lg">
+                {busy ? <Spinner /> : <Icon.Rocket className="h-4 w-4" />} Publicar anúncio
+              </Button>
             )}
           </div>
-        </div>
-      )}
+        </Panel>
+      </form>
 
-      {step === 4 && (
-        <div className="grid gap-3">
-          <div className="rounded-2xl border border-border bg-background p-4">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Título</p>
-            <p className="mt-1 font-bold">{title || "Ainda não informado"}</p>
+      {/* Pré-visualização ao vivo */}
+      <aside className="hidden xl:sticky xl:top-24 xl:block">
+        <p className="eyebrow mb-3">
+          <Icon.Eye className="h-3.5 w-3.5" /> Pré-visualização
+        </p>
+        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+          <div className="relative aspect-[16/10] overflow-hidden bg-gradient-surface">
+            {images[0] ? (
+              <img src={images[0]} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="grid h-full w-full place-items-center bg-grid text-primary/60">
+                <Icon.Image className="h-10 w-10" />
+              </div>
+            )}
+            {auto && (
+              <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase text-white backdrop-blur">
+                <Icon.Zap className="h-3 w-3 text-[oklch(0.85_0.15_95)]" /> Automática
+              </span>
+            )}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Preço</p>
-              <p className="mt-1 font-bold text-primary">
-                {price ? `R$ ${price}` : "Ainda não informado"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Entrega</p>
-              <p className="mt-1 font-bold">{auto ? "Automática" : "Manual"}</p>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-border bg-background p-4">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Descrição</p>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-              {description || "Nenhuma descrição informada."}
+          <div className="grid gap-2.5 p-5">
+            <p className="text-[11px] font-medium text-muted-foreground">
+              {categoryName ?? "Categoria"}
             </p>
-          </div>
-          <div className="flex items-start gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm">
-            <CircleHelp className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-            <p>
-              Depois de publicar, você poderá editar, pausar, destacar, abastecer o estoque e
-              administrar variações em “Meus anúncios”.
+            <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-[0.95rem] font-bold leading-snug">
+              {title || "O título do seu anúncio aparece aqui"}
+            </h3>
+            <p className="flex items-center gap-1 text-[11px] font-semibold text-success">
+              <Icon.ShieldCheck className="h-3.5 w-3.5" /> Entrega garantida
             </p>
+            <div className="flex items-end justify-between border-t border-dashed border-border pt-3">
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">A partir de</span>
+                <span className="font-display text-xl font-extrabold text-gradient">{formatPrice(priceCents)}</span>
+              </div>
+              <span className="rounded-full bg-primary/12 px-2.5 py-1 text-[10px] font-semibold text-primary">0 vendas</span>
+            </div>
           </div>
         </div>
-      )}
-
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={step === 1 || busy}
-          onClick={() => setStep((current) => Math.max(1, current - 1))}
-        >
-          <ChevronLeft className="mr-1 h-4 w-4" /> Voltar
-        </Button>
-        {step < 4 ? (
-          <Button type="button" onClick={nextStep}>
-            Continuar <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-        ) : (
-          <Button disabled={busy} className="gap-2 bg-gradient-primary text-primary-foreground">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}{" "}
-            Publicar anúncio
-          </Button>
-        )}
-      </div>
-    </form>
+        <ul className="mt-4 grid gap-2 text-xs text-muted-foreground">
+          {[
+            "Títulos específicos vendem mais.",
+            "Use 3+ imagens nítidas na vitrine.",
+            "Descreva prazo e suporte pós-venda.",
+          ].map((t) => (
+            <li key={t} className="flex items-start gap-2">
+              <Icon.Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" /> {t}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </div>
   );
 }
+
+
 function Purchases({
   orders,
   onRefresh,
@@ -2198,7 +2321,7 @@ function UsernameCard({ onSaved }: { onSaved: () => void }) {
 
   if (locked) {
     return (
-      <div className="grid max-w-2xl gap-1 rounded-2xl border border-border bg-card p-6">
+      <div className="grid max-w-3xl gap-1 rounded-3xl border border-border bg-card p-6 shadow-card">
         <Label>Seu @ (permanente)</Label>
         <p className="text-lg font-semibold">@{profile?.username}</p>
         <p className="text-[11px] text-muted-foreground">
@@ -2211,7 +2334,7 @@ function UsernameCard({ onSaved }: { onSaved: () => void }) {
   return (
     <form
       onSubmit={submit}
-      className="grid max-w-2xl gap-2 rounded-2xl border border-primary/40 bg-card p-6"
+      className="gradient-border grid max-w-3xl gap-2 rounded-3xl p-6 shadow-glow"
     >
       <Label htmlFor="pf-username">Escolha o seu @</Label>
       <div className="flex items-center gap-2">
@@ -2223,7 +2346,7 @@ function UsernameCard({ onSaved }: { onSaved: () => void }) {
           placeholder={profile?.username ?? "seunome"}
           maxLength={20}
         />
-        <Button disabled={busy} className="bg-gradient-primary text-primary-foreground">
+        <Button disabled={busy}>
           Definir
         </Button>
       </div>
@@ -2381,21 +2504,21 @@ function ReviewStat({
   );
 }
 
+
 function ProfileTab({ onSaved }: { onSaved: () => void }) {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [bio, setBio] = useState(profile?.bio ?? "");
+
+  useEffect(() => {
+    setBio(profile?.bio ?? "");
+  }, [profile?.bio]);
 
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
     setBusy(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        bio: String(form.get("bio") ?? ""),
-      })
-      .eq("id", user!.id);
+    const { error } = await supabase.from("profiles").update({ bio }).eq("id", user!.id);
     setBusy(false);
     if (error) return toast.error(error.message);
     await Promise.all([
@@ -2423,94 +2546,122 @@ function ProfileTab({ onSaved }: { onSaved: () => void }) {
     }
   };
 
-  return (
-    <div className="grid gap-4">
-      <section className="grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2 sm:p-6">
-        <div className="flex items-start gap-3">
-          <span
-            className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${user?.email_confirmed_at ? "bg-emerald-500/10 text-emerald-500" : "bg-muted text-muted-foreground"}`}
-          >
-            <BadgeCheck className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-sm font-bold">
-              E-mail {user?.email_confirmed_at ? "verificado" : "não verificado"}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {user?.email ?? "Nenhum e-mail disponível"}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3">
-          <span
-            className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${profile?.verified ? "bg-emerald-500/10 text-emerald-500" : "bg-muted text-muted-foreground"}`}
-          >
-            <ShieldCheck className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-sm font-bold">
-              Documentos {profile?.verified ? "verificados" : "não verificados"}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {profile?.verified
-                ? `Nível ${profile.verification_level}`
-                : "Envie seus documentos para liberar a verificação."}
-            </p>
-          </div>
-        </div>
-      </section>
-      <UsernameCard onSaved={onSaved} />
-      <form
-        onSubmit={save}
-        className="grid max-w-2xl gap-4 rounded-2xl border border-border bg-card p-6"
-      >
-        <div className="grid gap-2">
-          <Label htmlFor="pf-name">Nome cadastrado</Label>
-          <Input
-            id="pf-name"
-            value={profile?.display_name ?? profile?.username ?? ""}
-            readOnly
-            disabled
-          />
-          <p className="text-[11px] text-muted-foreground">
-            O nome cadastrado não pode ser alterado. Ele deve permanecer igual ao informado no
-            cadastro.
-          </p>
-        </div>
+  const ACCEPT = "image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff";
+  const banner = (profile as { banner_url?: string | null } | null)?.banner_url;
+  const name = profile?.display_name ?? profile?.username ?? "";
 
-        <div className="grid gap-2">
-          <Label htmlFor="pf-bio">Bio da loja</Label>
-          <Textarea
-            id="pf-bio"
-            name="bio"
-            rows={4}
-            defaultValue={profile?.bio ?? ""}
-            maxLength={500}
-          />
+  return (
+    <div className="grid gap-5">
+      {/* Capa + avatar */}
+      <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-card">
+        <div className="group relative h-40 overflow-hidden bg-gradient-surface sm:h-52">
+          {banner ? (
+            <img src={banner} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <>
+              <div className="aurora" aria-hidden="true" />
+              <div className="absolute inset-0 bg-grid" aria-hidden="true" />
+              <Constellation className="absolute right-6 top-4 h-32 w-56 text-primary opacity-70" />
+            </>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+          <label className="btn-sheen absolute right-3 top-3 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/20 bg-black/55 px-3 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-primary/70">
+            <Icon.Camera className="h-4 w-4" /> Alterar capa
+            <input type="file" accept={ACCEPT} className="sr-only" onChange={(e) => uploadImage(e.target.files?.[0], "banner_url")} />
+          </label>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="relative flex flex-wrap items-end gap-4 px-5 pb-5 sm:px-7">
+          <div className="relative -mt-12 sm:-mt-14">
+            <Avatar className="h-24 w-24 border-4 border-card sm:h-28 sm:w-28">
+              <AvatarImage src={profile?.avatar_url ?? undefined} />
+              <AvatarFallback className="text-2xl">{(profile?.username ?? "U").slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <label
+              className="absolute -bottom-1 -right-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-card bg-gradient-primary text-primary-foreground shadow-glow transition hover:scale-110"
+              aria-label="Alterar foto de perfil"
+            >
+              <Icon.Camera className="h-4 w-4" />
+              <input type="file" accept={ACCEPT} className="sr-only" onChange={(e) => uploadImage(e.target.files?.[0], "avatar_url")} />
+            </label>
+          </div>
+          <div className="min-w-0 flex-1 pt-3">
+            <p className="flex items-center gap-2 font-display text-xl font-extrabold">
+              <span className="truncate">{name}</span>
+              {profile?.verified && <Icon.Verified className="h-5 w-5 shrink-0 text-primary" />}
+            </p>
+            <p className="text-sm text-muted-foreground">@{profile?.username}</p>
+          </div>
+          {profile?.username && (
+            <Link to="/vendedor/$slug" params={{ slug: profile.username }}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Icon.Eye className="h-4 w-4" /> Ver como visitante
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Verificações */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[
+          {
+            ok: !!user?.email_confirmed_at,
+            icon: <Icon.Message className="h-5 w-5" />,
+            t: `E-mail ${user?.email_confirmed_at ? "verificado" : "não verificado"}`,
+            d: user?.email ?? "Nenhum e-mail disponível",
+          },
+          {
+            ok: !!profile?.verified,
+            icon: <Icon.ShieldCheck className="h-5 w-5" />,
+            t: `Documentos ${profile?.verified ? "verificados" : "não verificados"}`,
+            d: profile?.verified
+              ? `Nível ${profile.verification_level}`
+              : "Envie seus documentos para liberar a verificação.",
+          },
+        ].map((v) => (
+          <div key={v.t} className={`flex items-start gap-3 rounded-3xl border p-4 shadow-card ${v.ok ? "border-success/30 bg-success/5" : "border-border bg-card"}`}>
+            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${v.ok ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
+              {v.icon}
+            </span>
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-sm font-bold">
+                {v.t} {v.ok && <Icon.CheckCircle className="h-4 w-4 text-success" />}
+              </p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{v.d}</p>
+              {!v.ok && v.t.startsWith("Documentos") && (
+                <Link to="/verificacao" className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  Verificar agora <Icon.ArrowRight className="h-3 w-3" />
+                </Link>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <UsernameCard onSaved={onSaved} />
+
+      <form onSubmit={save}>
+        <Panel className="grid max-w-3xl gap-5">
+          <SectionTitle icon={<Icon.Store className="h-4 w-4" />} title="Dados da loja" hint="Aparece na sua página pública" />
           <div className="grid gap-2">
-            <Label htmlFor="pf-avatar">Foto de perfil</Label>
-            <Input
-              id="pf-avatar"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff"
-              onChange={(e) => uploadImage(e.target.files?.[0], "avatar_url")}
-            />
+            <Label htmlFor="pf-name">Nome cadastrado</Label>
+            <div className="relative">
+              <Icon.Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="pf-name" value={name} readOnly disabled className="pl-10" />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              O nome cadastrado não pode ser alterado. Ele deve permanecer igual ao informado no cadastro.
+            </p>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="pf-banner">Banner de fundo</Label>
-            <Input
-              id="pf-banner"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml,image/bmp,image/tiff"
-              onChange={(e) => uploadImage(e.target.files?.[0], "banner_url")}
-            />
+            <Label htmlFor="pf-bio">Bio da loja</Label>
+            <Textarea id="pf-bio" name="bio" rows={5} value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} placeholder="Conte quem você é e o que vende…" />
+            <p className="text-right text-[11px] text-muted-foreground">{bio.length}/500</p>
           </div>
-        </div>
-        <Button disabled={busy} className="w-fit bg-gradient-primary text-primary-foreground">
-          Guardar alterações
-        </Button>
+          <Button disabled={busy} className="w-fit gap-2">
+            {busy ? <Spinner /> : <Icon.Check className="h-4 w-4" />} Guardar alterações
+          </Button>
+        </Panel>
       </form>
     </div>
   );

@@ -1,38 +1,29 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Heart, MessageCircle, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { Icon, type IconProps } from "@/components/icons";
+import type { ComponentType } from "react";
 
 type Item = {
   label: string;
-  icon: typeof Home;
+  icon: ComponentType<IconProps>;
   to: string;
   match: (p: string) => boolean;
   search?: Record<string, unknown>;
 };
 
 const items: Item[] = [
-  { label: "Início", icon: Home, to: "/", match: (p) => p === "/" },
+  { label: "Início", icon: Icon.Home, to: "/", match: (p) => p === "/" },
   {
     label: "Buscar",
-    icon: Search,
+    icon: Icon.Search,
     to: "/produtos",
     search: { q: "", cat: "todas", sort: "recentes" },
     match: (p) => p.startsWith("/produtos") || p.startsWith("/produto/"),
   },
-  { label: "Favoritos", icon: Heart, to: "/favoritos", match: (p) => p.startsWith("/favoritos") },
-  {
-    label: "Mensagens",
-    icon: MessageCircle,
-    to: "/mensagens",
-    match: (p) => p.startsWith("/mensagens"),
-  },
-  {
-    label: "Painel",
-    icon: LayoutDashboard,
-    to: "/dashboard",
-    match: (p) => p.startsWith("/dashboard"),
-  },
+  { label: "Favoritos", icon: Icon.Heart, to: "/favoritos", match: (p) => p.startsWith("/favoritos") },
+  { label: "Mensagens", icon: Icon.Message, to: "/mensagens", match: (p) => p.startsWith("/mensagens") },
+  { label: "Painel", icon: Icon.Dashboard, to: "/dashboard", match: (p) => p.startsWith("/dashboard") },
 ];
 
 export function MobileTabBar() {
@@ -42,12 +33,12 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Navegação do celular"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-3 bottom-3 z-50 rounded-3xl border border-primary/25 bg-background/80 pb-[env(safe-area-inset-bottom)] shadow-[0_18px_50px_-12px_oklch(0.55_0.26_295/0.6)] backdrop-blur-2xl md:hidden"
     >
       <ul className="grid grid-cols-5">
         {items.map((item) => {
           const active = item.match(pathname);
-          const Icon = item.icon;
+          const IconC = item.icon;
           const needsAuth = item.to !== "/" && item.to !== "/produtos" && !user;
           return (
             <li key={item.label}>
@@ -55,17 +46,17 @@ export function MobileTabBar() {
                 to={needsAuth ? "/auth" : (item.to as never)}
                 search={(item.search as never) ?? undefined}
                 className={cn(
-                  "flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] font-medium transition active:scale-95",
+                  "relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] font-semibold transition active:scale-95",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <span
                   className={cn(
-                    "grid h-8 w-12 place-items-center rounded-full transition",
-                    active && "bg-primary/12",
+                    "grid h-8 w-12 place-items-center rounded-full transition-all",
+                    active && "bg-gradient-primary text-primary-foreground shadow-glow",
                   )}
                 >
-                  <Icon className={cn("h-[18px] w-[18px] transition", active && "scale-110")} />
+                  <IconC className="h-[18px] w-[18px]" />
                 </span>
                 <span className="truncate">{item.label}</span>
               </Link>

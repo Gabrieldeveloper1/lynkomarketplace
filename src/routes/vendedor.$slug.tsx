@@ -39,6 +39,7 @@ import { SellerBadges } from "@/components/seller-badges";
 import { openConversation } from "@/components/chat-panel";
 import { useAuth } from "@/hooks/use-auth";
 import { timeAgo } from "@/lib/format";
+import { Constellation, Icon } from "@/components/icons";
 import {
   fetchFollowerCount,
   fetchProducts,
@@ -270,18 +271,24 @@ function SellerPage() {
   return (
     <div className="pb-16">
       {/* Cover */}
-      <div className="relative h-40 w-full overflow-hidden bg-gradient-hero sm:h-64">
-        {seller.banner_url && (
+      <div className="relative h-44 w-full overflow-hidden bg-gradient-surface sm:h-72">
+        {seller.banner_url ? (
           <img src={seller.banner_url} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <>
+            <div className="aurora" aria-hidden="true" />
+            <div className="absolute inset-0 bg-grid" aria-hidden="true" />
+            <Constellation className="absolute right-8 top-6 hidden h-40 w-72 text-primary opacity-70 sm:block" />
+          </>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4">
         {/* Identity card */}
-        <div className="surface-card relative z-10 -mt-12 p-4 sm:-mt-16 sm:p-6">
+        <div className="gradient-border relative z-10 -mt-14 rounded-[2rem] p-4 shadow-glow sm:-mt-20 sm:p-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-            <Avatar className="h-24 w-24 shrink-0 border-4 border-background ring-2 ring-primary/25 sm:h-28 sm:w-28">
+            <Avatar className="h-24 w-24 shrink-0 border-4 border-card ring-2 ring-primary/50 shadow-glow sm:h-32 sm:w-32">
               <AvatarImage src={seller.avatar_url ?? undefined} />
               <AvatarFallback className="text-2xl">
                 {sellerUsername.slice(0, 2).toUpperCase()}
@@ -291,14 +298,14 @@ function SellerPage() {
             <div className="min-w-0 flex-1">
               <h1 className="flex min-w-0 flex-wrap items-center gap-2 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
                 <span className="break-words">{seller.display_name?.trim() || sellerUsername}</span>
-                {seller.verified && <BadgeCheck className="h-5 w-5 shrink-0 text-primary" />}
+                {seller.verified && <Icon.Verified className="h-6 w-6 shrink-0 text-primary" />}
               </h1>
               <p className="text-sm text-muted-foreground">@{sellerUsername}</p>
 
               <div
                 className={`mt-2 inline-flex items-center gap-1.5 text-xs font-semibold ${online ? "text-emerald-500" : "text-muted-foreground"}`}
               >
-                <Circle className={`h-2.5 w-2.5 fill-current ${online ? "" : "opacity-50"}`} />
+                <span className={`h-2 w-2 rounded-full bg-current ${online ? "animate-pulse" : "opacity-50"}`} />
                 {online
                   ? "Online agora"
                   : lastSeen
@@ -308,23 +315,23 @@ function SellerPage() {
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {seller.verified && (
-                  <Badge className="gap-1 bg-gradient-primary text-primary-foreground">
-                    <ShieldCheck className="h-3 w-3" /> {publicVerificationLabel(seller.verified)}
+                  <Badge className="gap-1">
+                    <Icon.ShieldCheck className="h-3 w-3" /> {publicVerificationLabel(seller.verified)}
                   </Badge>
                 )}
                 {(seller.verif_city || seller.verif_country) && (
                   <Badge variant="secondary" className="gap-1 text-[11px]">
-                    <MapPin className="h-3 w-3" />
+                    <Icon.Globe className="h-3 w-3" />
                     {[seller.verif_city, seller.verif_country].filter(Boolean).join(", ")}
                   </Badge>
                 )}
                 {seller.verif_business && (
                   <Badge variant="secondary" className="gap-1 text-[11px]">
-                    <Building2 className="h-3 w-3" /> {seller.verif_business}
+                    <Icon.Store className="h-3 w-3" /> {seller.verif_business}
                   </Badge>
                 )}
                 <Badge variant="outline" className="gap-1 text-[11px]">
-                  <CalendarDays className="h-3 w-3" /> No site {timeAgo(sellerCreatedAt)}
+                  <Icon.Clock className="h-3 w-3" /> No site {timeAgo(sellerCreatedAt)}
                 </Badge>
                 {seller.verif_social && (
                   <a
@@ -333,7 +340,7 @@ function SellerPage() {
                     rel="noopener noreferrer nofollow"
                     className="inline-flex items-center gap-1 text-[11px] text-primary underline"
                   >
-                    <LinkIcon className="h-3 w-3" aria-hidden />{" "}
+                    <Icon.Link className="h-3 w-3" />{" "}
                     {networkOf(seller.verif_social_network)?.label ?? "Rede social"}
                   </a>
                 )}
@@ -364,9 +371,9 @@ function SellerPage() {
                 {busy === "follow" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : isFollowing ? (
-                  <UserCheck className="h-4 w-4" />
+                  <Icon.Check className="h-4 w-4" />
                 ) : (
-                  <UserPlus className="h-4 w-4" />
+                  <Icon.Plus className="h-4 w-4" />
                 )}
                 {busy === "follow" ? "A processar…" : isFollowing ? "A seguir" : "Seguir"}
               </Button>
@@ -374,7 +381,7 @@ function SellerPage() {
                 {busy === "chat" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <MessageSquare className="h-4 w-4" />
+                  <Icon.Message className="h-4 w-4" />
                 )}
                 {busy === "chat" ? "A abrir…" : "Mensagem"}
               </Button>
@@ -384,7 +391,7 @@ function SellerPage() {
                 targetId={seller.id}
                 trigger={
                   <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
-                    <Flag className="h-4 w-4" /> Denunciar
+                    <Icon.Alert className="h-4 w-4" /> Denunciar
                   </Button>
                 }
               />
@@ -396,22 +403,22 @@ function SellerPage() {
             <Stat
               label="Seguidores"
               value={String(followers)}
-              icon={<Users className="h-4 w-4" />}
+              icon={<Icon.Users className="h-4 w-4" />}
             />
             <Stat
               label="Anúncios"
               value={String(products.length)}
-              icon={<Package className="h-4 w-4" />}
+              icon={<Icon.Package className="h-4 w-4" />}
             />
             <Stat
               label="Avaliações"
               value={String(reviews.length)}
-              icon={<Star className="h-4 w-4" />}
+              icon={<Icon.Star className="h-4 w-4" />}
             />
             <Stat
               label="Reputação"
               value={rating === null ? "" : `${rating}%`}
-              icon={<ThumbsUp className="h-4 w-4" />}
+              icon={<Icon.ThumbUp className="h-4 w-4" />}
               highlight={rating !== null && rating >= 80}
             />
           </div>
@@ -644,11 +651,11 @@ function Stat({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-secondary/40 p-4">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-background/50 p-4 transition hover:border-primary/40">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {icon} {label}
+        <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/12 text-primary">{icon}</span> {label}
       </div>
-      <p className={`mt-1 text-xl font-extrabold ${highlight ? "text-primary" : ""}`}>{value}</p>
+      <p className={`mt-2 font-display text-2xl font-extrabold ${highlight ? "text-gradient" : ""}`}>{value}</p>
     </div>
   );
 }

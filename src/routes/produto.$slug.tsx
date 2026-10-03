@@ -345,7 +345,7 @@ function ProdutoPage() {
 
           {/* Title block */}
           <div className="mt-6 rounded-3xl border border-border bg-gradient-surface p-5 shadow-sm sm:p-6">
-            <h1 className="font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+            <h1 className="font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-4xl">
               {product.title}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -407,7 +407,7 @@ function ProdutoPage() {
 
           {/* Detalhes e benefícios */}
           <section className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <div className="rounded-3xl border border-border bg-card p-4 shadow-card sm:p-6">
               <p className="font-display text-sm font-bold">Detalhes do anúncio</p>
               <dl className="mt-3 grid gap-2 text-xs">
                 {[
@@ -439,7 +439,7 @@ function ProdutoPage() {
               </dl>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <div className="rounded-3xl border border-border bg-card p-4 shadow-card sm:p-6">
               <p className="font-display text-sm font-bold">Benefícios de comprar aqui</p>
               <ul className="mt-3 grid gap-3">
                 {[
@@ -497,7 +497,7 @@ function ProdutoPage() {
             </TabsList>
 
             <TabsContent value="descricao">
-              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div className="rounded-3xl border border-border bg-card p-4 shadow-card sm:p-6">
                 {product.description ? (
                   <MarkdownContent
                     text={product.description}
@@ -531,7 +531,7 @@ function ProdutoPage() {
                     const name = buyer?.display_name || buyer?.username || "Cliente";
                     const stars = (r as { rating?: number | null }).rating;
                     return (
-                      <div key={r.id} className="rounded-2xl border border-border bg-card p-4">
+                      <div key={r.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
                         <div className="flex flex-wrap items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={buyer?.avatar_url ?? undefined} />
@@ -595,7 +595,7 @@ function ProdutoPage() {
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Preço final
               </p>
-              <p className="font-display text-4xl font-extrabold text-primary">
+              <p className="font-display text-4xl font-extrabold text-gradient">
                 {formatPrice(displayPrice * quantity)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -675,7 +675,7 @@ function ProdutoPage() {
               <Button
                 onClick={buy}
                 disabled={buying || soldOut}
-                className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+                className="w-full"
                 size="lg"
               >
                 {buying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -767,14 +767,14 @@ function ProdutoPage() {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Preço final
             </p>
-            <p className="truncate font-display text-lg font-extrabold text-primary">
+            <p className="truncate font-display text-lg font-extrabold text-gradient">
               {formatPrice(displayPrice * quantity)}
             </p>
           </div>
           <Button
             onClick={buy}
             disabled={buying || soldOut}
-            className="ml-auto h-11 flex-1 bg-gradient-primary text-primary-foreground shadow-glow"
+            className="ml-auto h-11 flex-1"
           >
             {buying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {soldOut ? "Esgotado" : "Comprar agora"}

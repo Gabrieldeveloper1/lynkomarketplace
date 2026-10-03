@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, CheckCheck, Inbox } from "lucide-react";
+import { Icon } from "@/components/icons";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,12 +84,12 @@ export function NotificationsMenu() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="relative rounded-full"
           aria-label={unread ? `Notificações, ${unread} não lidas` : "Notificações"}
         >
-          <Bell className="h-5 w-5" aria-hidden />
+          <Icon.Bell className="h-5 w-5" />
           {unread > 0 && (
-            <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+            <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-gradient-primary px-1 text-[10px] font-bold text-primary-foreground shadow-glow">
               {unread > 9 ? "9+" : unread}
             </span>
           )}
@@ -103,7 +103,7 @@ export function NotificationsMenu() {
               onClick={markAllRead}
               className="flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              <CheckCheck className="h-3.5 w-3.5" aria-hidden /> Marcar todas como lidas
+              <Icon.Check className="h-3.5 w-3.5" /> Marcar todas como lidas
             </button>
           )}
         </div>
@@ -111,7 +111,7 @@ export function NotificationsMenu() {
         <div className="max-h-[22rem] overflow-y-auto">
           {items.length === 0 ? (
             <div className="grid place-items-center gap-2 px-4 py-8 sm:py-10 text-center text-sm text-muted-foreground">
-              <Inbox className="h-6 w-6" aria-hidden />
+              <Icon.Bell className="h-6 w-6" />
               Sem notificações por enquanto.
             </div>
           ) : (

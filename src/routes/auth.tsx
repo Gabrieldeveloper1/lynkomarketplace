@@ -1,294 +1,366 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
+  ShieldCheck,
+  Zap,
+  Lock,
+  Star,
   ArrowRight,
-  Check,
+  Loader2,
   Eye,
   EyeOff,
-  KeyRound,
-  Loader2,
-  LockKeyhole,
   Mail,
-  ShieldCheck,
-  Sparkles,
-  UserRound,
-  Zap,
+  KeyRound,
+  CheckCircle2,
+  ArrowLeft,
+  Plus,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Orb, Rings, Sparkle, LogoFull } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { slugify } from "@/lib/format";
+import { ADMIN_SUPPORT_DISCORD_URL } from "@/lib/support";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ redirect: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Entrar — LynkoMarket" },
-      { name: "description", content: "Acesse ou crie sua conta LynkoMarket." },
+      { title: "Entrar ou criar conta | LynkoMarketplace" },
+      {
+        name: "description",
+        content:
+          "Aceda à sua conta LynkoMarketplace para comprar, vender e gerir a sua loja digital com segurança.",
+      },
+      { property: "og:title", content: "Entrar ou criar conta | LynkoMarketplace" },
+      {
+        property: "og:description",
+        content: "Login e registo seguro no marketplace LynkoMarketplace.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,
 });
 
-type Mode = "login" | "signup" | "recover";
+const PILLARS = [
+  {
+    icon: <Zap className="h-4 w-4" />,
+    t: "Entrega automática 24/7",
+    d: "Pix confirmado, produto entregue em segundos no painel do comprador.",
+  },
+  {
+    icon: <ShieldCheck className="h-4 w-4" />,
+    t: "Identidade verificada",
+    d: "KYC com documento e selfie, emblema de verificado e reputação pública.",
+  },
+  {
+    icon: <Lock className="h-4 w-4" />,
+    t: "Pagamento em custódia",
+    d: "Processado pelo Efí Bank e liberado ao vendedor após a entrega.",
+  },
+];
 
 function PasswordField({
   id,
   name,
   autoComplete,
+  minLength,
   placeholder,
-  onChange,
 }: {
   id: string;
   name: string;
   autoComplete: string;
+  minLength?: number;
   placeholder?: string;
-  onChange?: (value: string) => void;
 }) {
-  const [visible, setVisible] = useState(false);
+  const [show, setShow] = useState(false);
   return (
     <div className="relative">
       <Input
         id={id}
         name={name}
-        type={visible ? "text" : "password"}
+        type={show ? "text" : "password"}
         required
-        autoComplete={autoComplete}
+        minLength={minLength}
         placeholder={placeholder}
-        onChange={(event) => onChange?.(event.target.value)}
-        className="h-11 rounded-xl pr-11"
+        autoComplete={autoComplete}
+        className="pr-10"
       />
       <button
         type="button"
-        onClick={() => setVisible((value) => !value)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-muted-foreground hover:text-foreground"
-        aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground"
       >
-        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
     </div>
   );
+}
+
+function strengthOf(pw: string) {
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return Math.min(score, 4);
 }
 
 function AuthPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<Mode>("login");
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<"tabs" | "recover">("tabs");
+  const [recoverSent, setRecoverSent] = useState(false);
+  const [signupSent, setSignupSent] = useState<string | null>(null);
+  const [pw, setPw] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const [password, setPassword] = useState("");
-  const [sent, setSent] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user) navigate({ to: search.redirect ?? "/dashboard", replace: true });
   }, [user, loading, navigate, search.redirect]);
 
-  const submitLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  const signIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: String(form.get("email")).trim(),
       password: String(form.get("password")),
     });
     setBusy(false);
-    if (error)
-      return toast.error(
-        /invalid login credentials/i.test(error.message)
-          ? "E-mail ou senha incorretos."
-          : error.message,
-      );
+    if (error) {
+      const msg = /invalid login credentials/i.test(error.message)
+        ? "E-mail ou senha incorretos."
+        : /email not confirmed/i.test(error.message)
+          ? "Confirme o seu e-mail antes de entrar."
+          : error.message;
+      return toast.error(msg);
+    }
     toast.success("Bem-vindo de volta!");
     navigate({ to: search.redirect ?? "/dashboard" });
   };
-  const submitSignup = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const username = slugify(String(form.get("username")));
-    const displayName = String(form.get("display_name") || "").trim();
-    const email = String(form.get("email")).trim();
-    const pass = String(form.get("password"));
-    if (displayName.length < 2) return toast.error("Informe o nome público da sua loja ou perfil.");
-    if (username.length < 3) return toast.error("Nome de usuário inválido.");
-    if (pass.length < 6) return toast.error("A senha precisa de pelo menos 6 caracteres.");
-    if (pass !== String(form.get("confirm"))) return toast.error("As senhas não coincidem.");
-    if (!accepted) return toast.error("Aceite os termos para continuar.");
-    setBusy(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: pass,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { username, display_name: displayName },
-      },
-    });
-    setBusy(false);
-    if (error)
-      return toast.error(
-        /already registered/i.test(error.message)
-          ? "Já existe uma conta com este e-mail."
-          : error.message,
-      );
-    if (!data.session) {
-      setSent(email);
-      return;
-    }
-    toast.success("Conta criada!");
-    navigate({ to: search.redirect ?? "/dashboard" });
-  };
-  const submitRecover = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const email = String(new FormData(event.currentTarget).get("email")).trim();
+
+  const recover = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const email = String(new FormData(e.currentTarget).get("email")).trim();
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
-    setSent(email);
+    setRecoverSent(true);
   };
 
+  const signUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const username = slugify(String(form.get("username")));
+    const displayName = String(form.get("display_name") || "").trim();
+    const email = String(form.get("email")).trim();
+    const password = String(form.get("password"));
+    if (displayName.length < 2) return toast.error("Informe o nome público da sua loja ou perfil.");
+    if (username.length < 3) return toast.error("Nome de usuário inválido (mínimo 3 caracteres).");
+    if (password.length < 6) return toast.error("A senha precisa de pelo menos 6 caracteres.");
+    if (password !== String(form.get("confirm"))) return toast.error("As senhas não coincidem.");
+    if (!accepted)
+      return toast.error("É preciso aceitar os Termos de Uso e a Política de Privacidade.");
+
+    setBusy(true);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { username, display_name: displayName },
+      },
+    });
+    setBusy(false);
+    if (error) {
+      const msg = /already registered/i.test(error.message)
+        ? "Já existe uma conta com este e-mail. Tente entrar."
+        : error.message;
+      return toast.error(msg);
+    }
+    if (!data.session) {
+      setSignupSent(email);
+      return;
+    }
+    toast.success("Conta criada! Já pode começar a vender.");
+    navigate({ to: search.redirect ?? "/dashboard" });
+  };
+
+  const score = strengthOf(pw);
+  const scoreLabel = ["Muito fraca", "Fraca", "Razoável", "Boa", "Excelente"][score];
+
   return (
-    <div className="auth-shell lynko-page">
-      <div className="lynko-grid-bg pointer-events-none absolute inset-0 opacity-60" />
-      <div className="lynko-orb lynko-orb-purple -left-24 top-12 h-72 w-72" />
-      <div className="lynko-orb lynko-orb-pink right-0 top-1/3 h-72 w-72" />
-      <div className="lynko-shell relative grid gap-8 py-8 sm:py-12 lg:grid-cols-[.95fr_1.05fr] lg:items-center lg:gap-16 lg:py-20">
-        <div className="hidden lg:block">
-          <span className="eyebrow">Sua operação começa aqui</span>
-          <h1 className="mt-6 max-w-xl text-6xl font-black leading-[.92] tracking-[-.08em]">
-            Mais controle.
-            <br />
-            <span className="gradient-text">Mais confiança.</span>
+    <div className="relative overflow-hidden">
+      <div className="aurora" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_20%,transparent_75%)]" aria-hidden="true" />
+      <Rings className="pointer-events-none absolute -left-40 top-10 h-[34rem] w-[34rem] animate-spin-slow text-primary opacity-25" />
+      <Orb className="animate-float pointer-events-none absolute right-[8%] top-[10%] hidden h-16 w-16 opacity-80 lg:block" />
+      <Sparkle className="animate-twinkle pointer-events-none absolute left-[46%] top-[14%] hidden h-4 w-4 text-primary lg:block" />
+      <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:py-12 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-12 lg:py-20">
+        <div className="flex items-center gap-3 lg:hidden">
+          <LogoFull />
+          <div>
+                        <p className="text-xs text-muted-foreground">Digital com mais confiança</p>
+          </div>
+        </div>
+        <div className="hidden flex-col justify-center lg:flex">
+          <span className="inline-flex w-fit items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <Star className="h-3 w-3 fill-current" /> Marketplace digital nº1 em confiança
+          </span>
+          <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight xl:text-5xl">
+            Compre e venda digital com{" "}
+            <span className="text-gradient">
+              proteção total
+            </span>
           </h1>
-          <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">
-            Uma conta para comprar, vender, acompanhar entregas e construir reputação no ecossistema
-            Lynko.
+          <p className="mt-4 max-w-md text-muted-foreground">
+            Contas, chaves, gift cards e serviços digitais. Custódia do pagamento, entrega
+            automática e mediação humana sempre que precisar.
           </p>
-          <div className="mt-10 grid gap-3">
-            {[
-              {
-                icon: ShieldCheck,
-                title: "Pagamento protegido",
-                text: "Custódia e rastreabilidade em cada compra.",
-              },
-              {
-                icon: Zap,
-                title: "Entrega sem atrito",
-                text: "Automação para você receber no ritmo do digital.",
-              },
-              {
-                icon: Sparkles,
-                title: "Perfil que cresce",
-                text: "Reputação, métricas e comunidade no mesmo lugar.",
-              },
-            ].map(({ icon: Icon, title, text }) => (
-              <div key={title} className="surface-card-soft flex items-center gap-3 p-3.5">
-                <span className="icon-tile h-10 w-10 rounded-xl">
-                  <Icon className="h-4 w-4" />
+
+          <ul className="mt-8 grid gap-3">
+            {PILLARS.map((p) => (
+              <li
+                key={p.t}
+                className="glass flex items-start gap-3 rounded-2xl p-4 transition hover:-translate-y-0.5 hover:border-primary/50"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  {p.icon}
                 </span>
-                <div>
-                  <p className="text-sm font-bold">{title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{text}</p>
-                </div>
+                <span>
+                  <span className="block text-sm font-semibold">{p.t}</span>
+                  <span className="block text-xs text-muted-foreground">{p.d}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 grid max-w-md grid-cols-3 gap-4 border-t border-border pt-6">
+            {[
+              { v: "8%", l: "Taxa por venda" },
+              { v: "R$ 3,50", l: "Saque mínimo" },
+              { v: "Pix", l: "Aprovação automática" },
+            ].map((s) => (
+              <div key={s.l}>
+                <p className="font-display text-2xl font-extrabold text-gradient">{s.v}</p>
+                <p className="text-[11px] text-muted-foreground">{s.l}</p>
               </div>
             ))}
           </div>
-          <div className="mt-10 flex items-center gap-5 text-xs font-semibold text-muted-foreground">
-            <span>
-              <strong className="text-foreground">8k+</strong> produtos
-            </span>
-            <span>
-              <strong className="text-foreground">4.9/5</strong> avaliação
-            </span>
-            <span>
-              <strong className="text-foreground">24/7</strong> proteção
-            </span>
-          </div>
         </div>
-        <div className="auth-panel mx-auto w-full max-w-[29rem] p-5 sm:p-8">
-          <div className="mb-7 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/lynko-marketplace-logo.png" alt="Lynko Market" className="h-9 w-auto" />
-            </Link>
-            <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">
-              secure access
-            </span>
+
+        <div className="gradient-border animate-rise mx-auto w-full max-w-md rounded-[2rem] p-5 shadow-glow sm:p-8">
+          <div className="mb-6">
+            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+              <Lock className="h-5 w-5" />
+            </div>
+            <h2 className="text-center text-2xl font-extrabold tracking-tight">
+              {mode === "recover" ? "Recuperar sua senha" : "Que bom ver você por aqui!"}
+            </h2>
+            <p className="mt-1 text-center text-sm text-muted-foreground">
+              {mode === "recover"
+                ? "Enviaremos um link seguro para redefinir sua senha."
+                : "Digite seu e-mail e senha para entrar no seu painel."}
+            </p>
           </div>
-          {sent ? (
-            <div className="py-8 text-center">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/12 text-primary">
+
+          {signupSent ? (
+            <div className="grid gap-4 text-center">
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Mail className="h-6 w-6" />
               </span>
-              <h2 className="mt-5 text-2xl font-black">Confira seu e-mail</h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                Enviamos as instruções para <strong className="text-foreground">{sent}</strong>.
-                Quando terminar, volte para continuar.
-              </p>
-              <Button
-                variant="outline"
-                className="mt-7 w-full rounded-xl"
-                onClick={() => {
-                  setSent(null);
-                  setMode("login");
-                }}
-              >
-                Voltar para entrar
-              </Button>
-            </div>
-          ) : (
-            <>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.16em] text-primary">
-                  {mode === "recover"
-                    ? "Recuperação"
-                    : mode === "signup"
-                      ? "Primeiro acesso"
-                      : "Bem-vindo de volta"}
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-.06em]">
-                  {mode === "recover"
-                    ? "Recupere sua conta."
-                    : mode === "signup"
-                      ? "Crie seu espaço."
-                      : "Entre no seu ritmo."}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {mode === "recover"
-                    ? "Um link seguro chega em poucos instantes."
-                    : mode === "signup"
-                      ? "Comece a comprar ou publicar em minutos."
-                      : "Acesse seu painel e continue de onde parou."}
+                <p className="font-semibold">Confirme o seu e-mail</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Enviámos um link de confirmação para <strong>{signupSent}</strong>. Abra a
+                  mensagem para ativar a conta e depois volte aqui para entrar.
                 </p>
               </div>
-              {mode !== "recover" && (
-                <div className="mt-7 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
-                  <button
-                    type="button"
-                    onClick={() => setMode("login")}
-                    className={`rounded-lg py-2.5 text-xs font-extrabold transition ${mode === "login" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-                  >
-                    Entrar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("signup")}
-                    className={`rounded-lg py-2.5 text-xs font-extrabold transition ${mode === "signup" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-                  >
-                    Criar conta
-                  </button>
+              <Button
+                asChild
+                className="gap-2"
+              >
+                <Link to="/dashboard">
+                  <Plus className="h-4 w-4" /> Anunciar agora
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={() => setSignupSent(null)}>
+                Voltar ao início de sessão
+              </Button>
+            </div>
+          ) : mode === "recover" ? (
+            recoverSent ? (
+              <div className="grid gap-4 text-center">
+                <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+                  <CheckCircle2 className="h-6 w-6" />
+                </span>
+                <p className="text-sm text-muted-foreground">
+                  Se existir uma conta com esse e-mail, o link de recuperação já está a caminho.
+                  Verifique também a pasta de spam.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setRecoverSent(false);
+                    setMode("tabs");
+                  }}
+                >
+                  Voltar
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={recover} className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="rec-email">E-mail da conta</Label>
+                  <Input id="rec-email" name="email" type="email" required autoComplete="email" />
                 </div>
-              )}
-              {mode === "login" && (
-                <form onSubmit={submitLogin} className="mt-6 grid gap-4">
-                  <Field label="E-mail" id="login-email">
+                <Button
+                  disabled={busy}
+                  className="gap-2"
+                >
+                  {busy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  ) : (
+                    <KeyRound className="h-4 w-4" aria-hidden />
+                  )}
+                  {busy ? "Enviando..." : "Enviar link de recuperação"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setMode("tabs")}
+                  className="inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao início de sessão
+                </button>
+              </form>
+            )
+          ) : (
+            <Tabs defaultValue="login">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Entrar</TabsTrigger>
+                <TabsTrigger value="registo">Criar conta</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login" className="mt-6">
+                <form onSubmit={signIn} className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="login-email">E-mail</Label>
                     <Input
                       id="login-email"
                       name="email"
@@ -296,180 +368,219 @@ function AuthPage() {
                       required
                       autoComplete="email"
                       placeholder="voce@email.com"
-                      className="h-11 rounded-xl"
                     />
-                  </Field>
-                  <Field label="Senha" id="login-password">
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="login-password">Senha</Label>
+                      <button
+                        type="button"
+                        onClick={() => setMode("recover")}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Esqueci a senha
+                      </button>
+                    </div>
                     <PasswordField
                       id="login-password"
                       name="password"
                       autoComplete="current-password"
-                      placeholder="Sua senha"
+                      placeholder="••••••••"
                     />
-                  </Field>
-                  <button
-                    type="button"
-                    onClick={() => setMode("recover")}
-                    className="-mt-1 justify-self-end text-xs font-bold text-primary hover:underline"
-                  >
-                    Esqueci minha senha
-                  </button>
+                  </div>
                   <Button
                     disabled={busy}
-                    className="h-11 gap-2 rounded-xl bg-gradient-primary font-extrabold text-primary-foreground shadow-glow"
+                    className="gap-2"
                   >
                     {busy ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4" aria-hidden />
                     )}
-                    {busy ? "Entrando..." : "Entrar na conta"}
+                    {busy ? "Entrando..." : "Fazer login"}
                   </Button>
                 </form>
-              )}
-              {mode === "signup" && (
-                <form onSubmit={submitSignup} className="mt-6 grid gap-3.5">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <Field label="Nome público" id="display-name">
+              </TabsContent>
+
+              <TabsContent value="registo" className="mt-6">
+                <form onSubmit={signUp} className="grid gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="su-name">Nome público</Label>
                       <Input
-                        id="display-name"
+                        id="su-name"
                         name="display_name"
                         required
-                        placeholder="Sua marca"
-                        className="h-11 rounded-xl"
+                        minLength={2}
+                        maxLength={40}
+                        placeholder="Minha Loja Digital"
+                        aria-describedby="su-name-hint"
                       />
-                    </Field>
-                    <Field label="Username" id="username">
-                      <Input
-                        id="username"
-                        name="username"
-                        required
-                        placeholder="sua-loja"
-                        className="h-11 rounded-xl"
-                      />
-                    </Field>
+                      <p id="su-name-hint" className="text-[11px] text-muted-foreground">
+                        Aparece no topo do seu perfil.
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="su-username">Usuário</Label>
+                      <div className="flex items-center rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-ring">
+                        <span className="pl-3 text-sm font-semibold text-muted-foreground">@</span>
+                        <Input
+                          id="su-username"
+                          name="username"
+                          required
+                          maxLength={30}
+                          placeholder="minha-loja"
+                          aria-describedby="su-user-hint"
+                          className="border-0 bg-transparent focus-visible:ring-0"
+                        />
+                      </div>
+                      <p id="su-user-hint" className="text-[11px] text-muted-foreground">
+                        Será o link da sua loja.
+                      </p>
+                    </div>
                   </div>
-                  <Field label="E-mail" id="signup-email">
+                  <div className="grid gap-2">
+                    <Label htmlFor="su-email">E-mail</Label>
                     <Input
-                      id="signup-email"
+                      id="su-email"
                       name="email"
                       type="email"
                       required
                       autoComplete="email"
                       placeholder="voce@email.com"
-                      className="h-11 rounded-xl"
                     />
-                  </Field>
-                  <Field label="Senha" id="signup-password">
-                    <PasswordField
-                      id="signup-password"
-                      name="password"
-                      autoComplete="new-password"
-                      placeholder="Mínimo 6 caracteres"
-                      onChange={setPassword}
-                    />
-                  </Field>
-                  {password && (
-                    <div className="flex gap-1">
-                      {[0, 1, 2, 3].map((item) => (
-                        <span
-                          key={item}
-                          className={`h-1.5 flex-1 rounded-full ${item < Math.min(4, Math.ceil(password.length / 3)) ? "bg-primary" : "bg-muted"}`}
-                        />
-                      ))}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="su-password">Senha</Label>
+                    <div onChange={(e) => setPw((e.target as HTMLInputElement).value)}>
+                      <PasswordField
+                        id="su-password"
+                        name="password"
+                        minLength={6}
+                        autoComplete="new-password"
+                        placeholder="Mínimo 6 caracteres"
+                      />
                     </div>
-                  )}
-                  <Field label="Confirmar senha" id="confirm-password">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-1.5 flex-1 gap-1">
+                        {[0, 1, 2, 3].map((i) => (
+                          <span
+                            key={i}
+                            className={`h-full flex-1 rounded-full ${
+                              pw && i < score ? "bg-primary" : "bg-border"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="w-20 text-right text-[11px] text-muted-foreground">
+                        {pw ? scoreLabel : ""}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="su-confirm">Confirmar senha</Label>
                     <PasswordField
-                      id="confirm-password"
+                      id="su-confirm"
                       name="confirm"
+                      minLength={6}
                       autoComplete="new-password"
                       placeholder="Repita a senha"
                     />
-                  </Field>
-                  <label className="mt-1 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
+                  </div>
+
+                  <label className="flex items-start gap-2.5 text-[12px] leading-relaxed text-muted-foreground">
                     <Checkbox
                       checked={accepted}
-                      onCheckedChange={(value) => setAccepted(value === true)}
+                      onCheckedChange={(v) => setAccepted(v === true)}
                       className="mt-0.5"
-                    />{" "}
+                      aria-label="Aceito os termos"
+                    />
                     <span>
                       Li e aceito os{" "}
                       <Link
                         to="/p/$slug"
                         params={{ slug: "termos" }}
-                        className="font-bold text-primary hover:underline"
+                        className="text-primary hover:underline"
                       >
-                        Termos de uso
+                        Termos de Uso
+                      </Link>
+                      ,{" "}
+                      <Link
+                        to="/p/$slug"
+                        params={{ slug: "privacidade" }}
+                        className="text-primary hover:underline"
+                      >
+                        a Política de Privacidade
                       </Link>{" "}
-                      e a política de privacidade.
+                      e as{" "}
+                      <Link
+                        to="/p/$slug"
+                        params={{ slug: "regras-do-vendedor" }}
+                        className="text-primary hover:underline"
+                      >
+                        Regras do Vendedor
+                      </Link>
+                      .
                     </span>
                   </label>
+
                   <Button
                     disabled={busy}
-                    className="h-11 gap-2 rounded-xl bg-gradient-primary font-extrabold text-primary-foreground shadow-glow"
+                    className="gap-2"
                   >
                     {busy ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      <UserRound className="h-4 w-4" />
+                      <ShieldCheck className="h-4 w-4" aria-hidden />
                     )}
-                    {busy ? "Criando..." : "Criar minha conta"}
+                    {busy ? "Criando..." : "Criar conta"}
                   </Button>
+                  <ul className="grid gap-2 rounded-xl border border-border bg-accent/30 p-3 text-[11px] text-muted-foreground">
+                    <li>• Publique anúncios e receba por Pix com custódia.</li>
+                    <li>
+                      • Verificação de identidade em 3 níveis, você escolhe o quanto compartilha.
+                    </li>
+                    <li>• Notificações em tempo real de mensagens, pedidos e saques.</li>
+                  </ul>
                 </form>
-              )}
-              {mode === "recover" && (
-                <form onSubmit={submitRecover} className="mt-7 grid gap-4">
-                  <Field label="E-mail da conta" id="recover-email">
-                    <Input
-                      id="recover-email"
-                      name="email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      placeholder="voce@email.com"
-                      className="h-11 rounded-xl"
-                    />
-                  </Field>
-                  <Button
-                    disabled={busy}
-                    className="h-11 gap-2 rounded-xl bg-gradient-primary font-extrabold text-primary-foreground shadow-glow"
-                  >
-                    {busy ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <KeyRound className="h-4 w-4" />
-                    )}
-                    {busy ? "Enviando..." : "Enviar link seguro"}
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("login")}
-                    className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground"
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" /> Voltar para entrar
-                  </button>
-                </form>
-              )}
-            </>
+              </TabsContent>
+            </Tabs>
           )}
-          <div className="mt-7 flex items-center justify-center gap-1.5 text-[10px] font-semibold text-muted-foreground">
-            <LockKeyhole className="h-3.5 w-3.5 text-primary" /> Seus dados são protegidos por
-            conexão segura
+
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <ShieldCheck className="h-5 w-5" aria-hidden />
+            </span>
+            <span>
+              <strong className="block text-sm font-bold">Compra 100% garantida</strong>
+              <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                O pagamento fica protegido até a entrega. Se o produto não chegar, o dinheiro volta.
+              </span>
+            </span>
           </div>
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Precisa de ajuda?{" "}
+            <a
+              href={ADMIN_SUPPORT_DISCORD_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              Fale com o suporte no Discord
+            </a>{" "}
+            ou{" "}
+            <Link
+              to="/produtos"
+              search={{ q: "", cat: "todas", sort: "recentes" }}
+              className="text-primary hover:underline"
+            >
+              explore sem conta
+            </Link>
+            .
+          </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1.5">
-      <Label htmlFor={id} className="text-xs font-bold">
-        {label}
-      </Label>
-      {children}
     </div>
   );
 }

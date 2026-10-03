@@ -53,7 +53,7 @@ function AssetCard({
 function AssetsPage() {
   return (
     <main className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_50%_0%,oklch(0.7_0.2_264_/_0.16),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_50%_0%,oklch(0.6_0.26_295_/_0.2),transparent_65%)]" />
       <div className="relative mx-auto max-w-6xl px-4 py-10 sm:py-16">
         <Link
           to="/"

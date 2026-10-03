@@ -178,7 +178,7 @@ function CheckoutPage() {
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
             <Lock className="h-3.5 w-3.5" /> Compra protegida
           </div>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+          <h1 className="mt-2 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
             Finalize sua compra
           </h1>
         </div>
