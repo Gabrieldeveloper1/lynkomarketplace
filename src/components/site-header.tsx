@@ -30,7 +30,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
 export function AdminBadge({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full bg-gradient-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground shadow-glow ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground ${className}`}
     >
       <Icon.Crown className="h-3 w-3" /> Admin
     </span>
@@ -94,7 +94,7 @@ export function SiteHeader() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         scrolled
-          ? "border-b border-primary/15 bg-background/75 shadow-[0_10px_40px_-20px_oklch(0.55_0.26_295/0.55)] backdrop-blur-2xl"
+          ? "border-b border-border bg-background/80 backdrop-blur-2xl"
           : "border-b border-transparent bg-background/40 backdrop-blur-md"
       }`}
     >
@@ -119,7 +119,7 @@ export function SiteHeader() {
 
         <Logo />
 
-        <nav className="ml-3 hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+        <nav className="pill-nav ml-3 hidden xl:inline-flex" aria-label="Principal">
           {NAV.map((item) => {
             const active =
               item.label === "Marketplace"
@@ -130,14 +130,9 @@ export function SiteHeader() {
                 key={item.label}
                 to={item.to}
                 search={("search" in item ? item.search : undefined) as never}
-                className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors hover:text-foreground ${
-                  active && item.label !== "Mais vendidos" ? "text-foreground" : "text-muted-foreground"
-                }`}
+                data-status={active && item.label !== "Mais vendidos" ? "active" : undefined}
               >
                 {item.label}
-                {active && item.label !== "Mais vendidos" && (
-                  <span className="absolute inset-x-3 -bottom-px h-px bg-gradient-primary shadow-[0_0_12px_2px_oklch(0.6_0.26_295/0.8)]" />
-                )}
               </Link>
             );
           })}
@@ -145,7 +140,7 @@ export function SiteHeader() {
 
         <div className="relative mx-auto hidden w-full max-w-xl flex-1 md:block">
           <form onSubmit={submit}>
-            <div className="flex h-11 items-center gap-1 rounded-full border border-border bg-card/60 pl-4 pr-1.5 backdrop-blur transition-all focus-within:border-primary/70 focus-within:bg-card focus-within:ring-4 focus-within:ring-primary/15">
+            <div className="flex h-11 items-center gap-1 rounded-full border border-border bg-[#1a1918] pl-4 pr-1.5 transition-all focus-within:border-white/25">
               <Icon.Search className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
                 ref={searchRef}
