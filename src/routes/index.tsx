@@ -2,27 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/product-card";
-import { ReviewsCarousel } from "@/components/reviews-carousel";
 import { fetchCategories, fetchProducts } from "@/lib/marketplace";
-import { PROTECTION_TIERS } from "@/lib/protection";
-import { formatPrice } from "@/lib/format";
-import { CategoryVisual, getCategoryImage } from "@/components/category-icon";
-import { HeroMarquee } from "@/components/hero-marquee";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Icon, Orb, Rings, Sparkle } from "@/components/icons";
-import { SpotlightCard } from "@/components/lynko-ui";
+import { Icon } from "@/components/icons";
 
 const FAQ_GROUPS: { id: string; label: string; items: { q: string; a: string }[] }[] = [
   {
@@ -139,10 +131,8 @@ function Section({
     <section className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="flex items-center gap-3 font-display text-xl font-extrabold tracking-tight sm:text-3xl">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow">
-              {icon}
-            </span>
+          <h2 className="font-display text-2xl font-light tracking-tight sm:text-4xl">
+            <span className="sr-only">{icon}</span>
             {title}
           </h2>
           {subtitle && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{subtitle}</p>}
@@ -165,14 +155,14 @@ function Grid({
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-72 rounded-3xl" />
+          <Skeleton key={i} className="h-72 rounded-[1.25rem]" />
         ))}
       </div>
     );
   }
   if (!items.length) {
     return (
-      <div className="relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-card/50 p-10 text-center text-sm text-muted-foreground">
+      <div className="relative overflow-hidden rounded-[1.25rem] border border-dashed border-primary/30 bg-card/50 p-10 text-center text-sm text-muted-foreground">
         <div className="absolute inset-0 bg-dots opacity-50" aria-hidden="true" />
         <span className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
           <Icon.Package className="h-6 w-6" />
@@ -230,7 +220,7 @@ function Home() {
     queryFn: () => fetchProducts({ sort: "recentes", limit: 8, promotedFirst: true }),
     staleTime: 60 * 1000,
   });
-  const promoted = useQuery({
+  const _promoted = useQuery({
     queryKey: ["products", "promoted"],
     queryFn: () => fetchProducts({ sort: "vendidos", limit: 4, promotedFirst: true }),
     staleTime: 60 * 1000,
@@ -241,7 +231,6 @@ function Home() {
     staleTime: 60 * 1000,
   });
   // A seção "Novos & Bombando" usa a mesma lista recente, sem repetir uma chamada ao Supabase.
-  const newAndHot = recent;
   const subscriptions = useQuery({
     queryKey: ["products", "subscriptions"],
     queryFn: () => fetchProducts({ category: "assinaturas", sort: "vendidos", limit: 8 }),
@@ -325,476 +314,107 @@ function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
       />
       {/* HERO */}
-      <section className="relative overflow-hidden border-b border-primary/15">
-        <div className="aurora" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_25%,transparent_75%)]" aria-hidden="true" />
-        <Rings className="pointer-events-none absolute left-1/2 top-1/2 h-[46rem] w-[46rem] -translate-x-1/2 -translate-y-1/2 animate-spin-slow text-primary opacity-25" />
-        <Orb className="animate-float pointer-events-none absolute left-[6%] top-[22%] hidden h-24 w-24 opacity-90 md:block" />
-        <Orb className="animate-float-slow pointer-events-none absolute bottom-[26%] right-[7%] hidden h-16 w-16 opacity-80 md:block" />
-        <Sparkle className="animate-twinkle pointer-events-none absolute left-[22%] top-[14%] hidden h-5 w-5 text-primary md:block" />
-        <Sparkle className="animate-twinkle pointer-events-none absolute right-[20%] top-[30%] hidden h-4 w-4 text-[oklch(0.74_0.24_325)] md:block" />
-        <Sparkle className="animate-twinkle pointer-events-none absolute bottom-[34%] left-[14%] hidden h-3 w-3 text-primary md:block" />
-
-        <div className="relative mx-auto max-w-5xl px-4 pb-14 pt-14 text-center sm:pb-20 sm:pt-20">
-          <div className="mx-auto flex max-w-4xl flex-col items-center">
-            <span className="animate-rise mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary backdrop-blur">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-              Compre via Pix. Receba com segurança.
-            </span>
-            <h1 className="animate-rise max-w-4xl font-display text-[2.35rem] font-extrabold leading-[1.02] tracking-tight [animation-delay:80ms] sm:text-6xl lg:text-7xl">
-              Produtos digitais com{" "}
-              <span className="hero-shimmer-text text-gradient">entrega automática.</span>
+      <section className="mx-auto max-w-7xl px-4 pb-6 pt-10 sm:pt-16">
+        <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+          <div className="rounded-[1.25rem] border border-border bg-card p-6 sm:p-9">
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="live-dot" /> Ao vivo · Entrega automática · Pagamento em custódia
+            </p>
+            <h1 className="mt-5 font-display text-4xl font-light leading-[1.05] tracking-tight sm:text-6xl">
+              Produtos digitais com entrega na hora e dinheiro protegido
             </h1>
-            <p className="animate-rise mt-5 max-w-2xl text-sm text-muted-foreground [animation-delay:160ms] sm:mt-6 sm:text-lg">
-              Encontre produtos, compare vendedores e pague via Pix. A Lynko protege a compra e acompanha a
-              entrega do início ao fim.
+            <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
+              Compre e venda contas, chaves e serviços com vendedores verificados. Pague por Pix e receba no chat do pedido.
             </p>
             <form
-              className="animate-rise gradient-border mt-8 flex w-full max-w-2xl flex-col gap-2 rounded-3xl p-2 shadow-glow [animation-delay:240ms] sm:flex-row"
-              onSubmit={(event) => {
-                event.preventDefault();
-                navigate({
-                  to: "/produtos",
-                  search: { q: heroSearch, cat: "todas", sort: "recentes" },
-                });
+              className="mt-7 flex max-w-xl items-center gap-2 rounded-full border border-border bg-background p-1.5 pl-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                navigate({ to: "/produtos", search: { q: heroSearch } as never });
               }}
             >
-              <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
-                <Icon.Search className="h-5 w-5 shrink-0 text-primary" />
-                <input
-                  value={heroSearch}
-                  onChange={(event) => setHeroSearch(event.target.value)}
-                  placeholder="Procure por jogos, gift cards, IA, software, serviços..."
-                  aria-label="O que você está procurando?"
-                  className="h-12 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-              <Button type="submit" size="xl" className="gap-2">
-                Buscar <Icon.ArrowRight className="h-4 w-4" />
-              </Button>
+              <Icon.Search className="h-4 w-4 text-muted-foreground" />
+              <input
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                placeholder="Buscar produtos, categorias ou vendedores"
+                className="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                aria-label="Buscar"
+              />
+              <Button type="submit" size="sm">Buscar</Button>
             </form>
-            <div className="animate-rise mt-5 grid w-full gap-3 [animation-delay:320ms] sm:flex sm:w-auto sm:flex-wrap">
-              <Link to="/produtos" search={{ q: "", cat: "todas", sort: "recentes" }} className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
-                  Explorar ofertas <Icon.ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/dashboard" className="w-full sm:w-auto">
-                <Button size="lg" variant="soft" className="w-full gap-2 sm:w-auto">
-                  <Icon.Store className="h-4 w-4" /> Começar a vender
-                </Button>
-              </Link>
-            </div>
-
-            <div className="animate-rise mt-12 grid w-full max-w-2xl grid-cols-3 gap-3 [animation-delay:400ms] sm:gap-4">
-              {[
-                { v: "Pix", l: "Pagamento simples", i: <Icon.Pix className="h-5 w-5" /> },
-                { v: "100%", l: "Compra acompanhada", i: <Icon.ShieldCheck className="h-5 w-5" /> },
-                { v: "24/7", l: "Entrega automática", i: <Icon.Zap className="h-5 w-5" /> },
-              ].map((s) => (
-                <div key={s.l} className="glass rounded-2xl px-3 py-4">
-                  <span className="mx-auto grid h-9 w-9 place-items-center rounded-xl bg-primary/15 text-primary">{s.i}</span>
-                  <p className="mt-2 font-display text-xl font-extrabold text-gradient sm:text-3xl">{s.v}</p>
-                  <p className="text-[11px] text-muted-foreground sm:text-xs">{s.l}</p>
-                </div>
-              ))}
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm"><Link to="/produtos">Ver anúncios</Link></Button>
+              <Button asChild variant="outline" size="sm"><Link to={user ? "/dashboard" : "/auth"}>{user ? "Minha dashboard" : "Começar a vender"}</Link></Button>
             </div>
           </div>
-        </div>
-
-        <div className="relative border-t border-border/60 bg-background/40 py-4 backdrop-blur">
-          <HeroMarquee />
-        </div>
-      </section>
-
-      <section className="border-b border-border bg-card/50 backdrop-blur" aria-label="Por que comprar na Lynko">
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:grid-cols-2 lg:grid-cols-5">
-          {[
-            [Icon.Pix, "Pagamento via Pix"],
-            [Icon.ShieldCheck, "Compra protegida"],
-            [Icon.Verified, "Vendedores avaliados"],
-            [Icon.Zap, "Entrega rápida"],
-            [Icon.Users, "Suporte da Lynko"],
-          ].map(([Ic, label]) => {
-            const C = Ic as typeof Icon.Pix;
-            return (
-              <div key={label as string} className="flex items-center gap-2.5 text-sm font-semibold">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
-                  <C className="h-4 w-4" />
-                </span>
-                {label as string}
-              </div>
-            );
-          })}
+          <div className="grid gap-4">
+            <div className="rounded-[1.25rem] border border-border bg-card p-6">
+              <p className="text-xs text-muted-foreground">Taxa para vender</p>
+              <p className="mt-2 font-display text-6xl font-light tracking-tight">8<span className="text-2xl text-muted-foreground">%</span></p>
+              <p className="mt-1 text-sm text-muted-foreground">Publicar é grátis. Saque por Pix na carteira.</p>
+              <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[#262524]"><div className="h-full w-[8%] rounded-full bg-foreground" /></div>
+            </div>
+            <div className="rounded-[1.25rem] border border-border bg-card p-6">
+              <p className="text-xs text-muted-foreground">Como funciona</p>
+              <ul className="mt-3 divide-y divide-border text-sm">
+                {steps.map((st) => (
+                  <li key={st.t} className="flex items-start gap-3 py-3">
+                    <span className="mt-0.5 text-muted-foreground">{st.icon}</span>
+                    <span>{st.t.replace(/^\d\.\s/, "")}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* CATEGORIAS */}
-      <Section
-        title="Categorias do marketplace"
-        subtitle="Escolha uma categoria para comprar ou para descobrir onde anunciar o seu produto."
-        icon={<Icon.Layers className="h-5 w-5" />}
-      >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {categoriesQuery.isLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-36 rounded-3xl" />
-              ))
-            : categories.map((c) => (
-                <Link
-                  key={c.slug}
-                  to="/produtos"
-                  search={{ q: "", cat: c.slug, sort: "recentes" }}
-                  className="group relative overflow-hidden rounded-3xl border border-border bg-card text-center text-sm font-medium shadow-card transition duration-300 hover:-translate-y-1.5 hover:border-primary/60 hover:shadow-glow"
-                >
-                  {getCategoryImage(c) ? (
-                    <span className="block aspect-[4/3] w-full overflow-hidden bg-accent">
-                      <CategoryVisual
-                        category={c}
-                        imageClassName="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      />
-                    </span>
-                  ) : (
-                    <span className="mx-auto mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
-                      <CategoryVisual category={c} className="h-5 w-5" />
-                    </span>
-                  )}
-                  <span className="block px-3 py-3">
-                    <span className="block">{c.name}</span>
-                    {c.product_count ? (
-                      <span className="mt-1 block text-xs text-muted-foreground">
-                        {c.product_count} {c.product_count === 1 ? "produto" : "produtos"}
-                      </span>
-                    ) : (
-                      <span className="mt-1 block text-[11px] leading-tight text-muted-foreground">
-                        Seja o primeiro vendedor
-                      </span>
-                    )}
-                  </span>
-                </Link>
-              ))}
+      <section className="mx-auto max-w-7xl px-4 py-4">
+        <div className="pill-nav flex max-w-full overflow-x-auto">
+          {categories.map((c: { id: string; slug: string; name: string }) => (
+            <Link key={c.id} to="/produtos" search={{ cat: c.slug } as never} className="shrink-0">
+              {c.name}
+            </Link>
+          ))}
         </div>
-      </Section>
+      </section>
 
-      <Section
-        title="Em Destaque"
-        subtitle="Seleção especial de produtos impulsionados e bem avaliados."
-        icon={<Icon.Flame className="h-5 w-5" />}
-        action={
-          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
-            <Button variant="soft" size="sm" className="gap-1 rounded-full">
-              Ver todos <Icon.ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        }
-      >
-        <Grid loading={promoted.isLoading} items={promoted.data ?? []} />
-      </Section>
-
-      <Section
-        title="Mais Procurados da Semana"
-        subtitle="Os anúncios com maior procura e mais vendas na plataforma."
-        icon={<Icon.Trend className="h-5 w-5" />}
-        action={
-          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "vendidos" }}>
-            <Button variant="soft" size="sm" className="gap-1 rounded-full">
-              Ver mais <Icon.ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        }
-      >
+      <Section title="Mais vendidos" subtitle="O que está saindo agora." icon={<Icon.Zap className="h-5 w-5" />} action={<Button asChild variant="outline" size="sm"><Link to="/produtos">Ver todos</Link></Button>}>
         <Grid loading={mostWanted.isLoading} items={mostWanted.data ?? []} />
       </Section>
-
-      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-8">
-        <div className="gradient-border relative overflow-hidden rounded-[2rem] p-6 shadow-glow sm:p-10">
-          <div className="aurora opacity-70" aria-hidden="true" />
-          <Rings className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 text-primary opacity-40" />
-          <div className="relative grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
-            <div>
-              <Badge className="mb-4 gap-1">
-                <Icon.Crown className="h-3 w-3" /> Programa Lynko Founders
-              </Badge>
-              <h2 className="max-w-2xl text-2xl font-extrabold sm:text-4xl">
-                Seja um dos primeiros vendedores da Lynko.
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Estamos abrindo espaço para quem quer construir sua loja desde o começo. Publique
-                gratuitamente, ganhe destaque inicial e ajude a formar o marketplace brasileiro de
-                produtos digitais.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-sm text-muted-foreground">
-                {["Publicação gratuita", "Destaque inicial", "Selo Vendedor Fundador"].map(
-                  (item) => (
-                    <span
-                      key={item}
-                      className="rounded-full border border-border bg-background/70 px-3 py-1.5"
-                    >
-                      {item}
-                    </span>
-                  ),
-                )}
-              </div>
-              <Link to={user ? "/dashboard" : "/auth"} className="mt-7 inline-flex">
-                <Button size="lg" className="gap-2">
-                  {user ? "Abrir minha loja" : "Começar a vender"}{" "}
-                  <Icon.ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="rounded-3xl border border-border bg-card/80 p-5 shadow-card backdrop-blur">
-              <p className="eyebrow">
-                O que vem primeiro
-              </p>
-              <div className="mt-4 grid gap-3">
-                {["Publique seu produto", "Construa sua reputação", "Venda e receba via Pix"].map(
-                  (item, index) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-3 rounded-xl bg-background/70 p-3 text-sm font-semibold"
-                    >
-                      <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-primary text-xs text-primary-foreground shadow-glow">
-                        {index + 1}
-                      </span>
-                      {item}
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Section
-        title="Novos & Bombando"
-        subtitle="Produtos recém-publicados que já estão chamando atenção."
-        icon={<Icon.Sparkles className="h-5 w-5" />}
-      >
-        <Grid loading={newAndHot.isLoading} items={newAndHot.data ?? []} />
-      </Section>
-
-      {!!subscriptions.data?.length && (
-        <Section
-          title="Assinaturas"
-          subtitle="Planos e acessos recorrentes para você encontrar tudo em um só lugar."
-          icon={<Icon.Refresh className="h-5 w-5" />}
-          action={
-            <Link to="/produtos" search={{ q: "", cat: "assinaturas", sort: "vendidos" }}>
-              <Button variant="soft" size="sm" className="gap-1 rounded-full">
-                Ver assinaturas <Icon.ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          }
-        >
-          <Grid loading={subscriptions.isLoading} items={subscriptions.data ?? []} />
-        </Section>
-      )}
-
-      <Section
-        title="Anúncios publicados recentemente"
-        subtitle="Os últimos produtos colocados à venda pelos vendedores."
-        icon={<Icon.Clock className="h-5 w-5" />}
-        action={
-          <Link to="/produtos" search={{ q: "", cat: "todas", sort: "recentes" }}>
-            <Button variant="soft" size="sm" className="gap-1 rounded-full">
-              Ver todos <Icon.ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        }
-      >
+      <Section title="Novos anúncios" icon={<Icon.Package className="h-5 w-5" />}>
         <Grid loading={recent.isLoading} items={recent.data ?? []} />
       </Section>
-
-      {/* COMO FUNCIONA */}
-      <Section
-        title="Como funciona o LynkoMarketplace"
-        subtitle="Conectamos quem compra e quem vende a negociação é entre vocês, a proteção é nossa."
-        icon={<Icon.Sparkles className="h-5 w-5" />}
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          {steps.map((s, i) => (
-            <SpotlightCard key={s.t} className="relative overflow-hidden p-5 sm:p-6">
-              <span className="absolute right-5 top-3 font-display text-6xl font-black text-primary/10">
-                {i + 1}
-              </span>
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
-                {s.icon}
-              </span>
-              <p className="mt-5 font-display text-base font-bold">{s.t}</p>
-              <p className="mt-1.5 text-sm text-muted-foreground">{s.d}</p>
-            </SpotlightCard>
-          ))}
-        </div>
+      <Section title="Assinaturas" icon={<Icon.Store className="h-5 w-5" />}>
+        <Grid loading={subscriptions.isLoading} items={subscriptions.data ?? []} />
       </Section>
 
-      {/* PROTEÇÃO / TAXAS */}
-      <Section
-        title="Taxa de serviço justa"
-        subtitle="Taxa fixa em centavos, igual para qualquer valor de compra. Somos justos em todos os níveis."
-        icon={<Icon.ShieldCheck className="h-5 w-5" />}
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          {PROTECTION_TIERS.map((t, i) => (
-            <div
-              key={t.id}
-              className={`relative rounded-3xl border bg-card p-6 transition duration-300 hover:-translate-y-1 ${
-                i === 1 ? "gradient-border shadow-glow" : "border-border shadow-card"
-              }`}
-            >
-              {i === 1 && (
-                <Badge className="absolute -top-3 left-6 bg-gradient-primary text-primary-foreground">
-                  Mais escolhida
-                </Badge>
-              )}
-              <p className="text-sm font-semibold">{t.name}</p>
-              <p className="mt-2 font-display text-3xl font-extrabold text-gradient">
-                +{formatPrice(t.feeCents)}
-                <span className="ml-1 text-xs font-medium text-muted-foreground">por compra</span>
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">{t.tagline}</p>
-              <ul className="mt-4 grid gap-2 text-sm">
-                {t.benefits.map((b) => (
-                  <li key={b} className="flex items-start gap-2">
-                    <Icon.CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span className="text-muted-foreground">{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* AVALIAÇÕES RECENTES */}
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="font-display text-xl font-extrabold sm:text-3xl">Avaliações <span className="text-gradient">recentes</span></h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              O que os compradores estão dizendo agora mesmo na Lynko.
-            </p>
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-10 md:grid-cols-3">
+        {profileCtas.map((c) => (
+          <div key={c.title} className="flex flex-col rounded-[1.25rem] border border-border bg-card p-6">
+            <h3 className="font-display text-2xl font-light">{c.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{c.desc}</p>
+            <ul className="my-5 flex-1 space-y-2 text-sm">
+              {c.points.map((pt) => (<li key={pt} className="flex justify-between border-t border-border pt-2 text-muted-foreground">{pt}</li>))}
+            </ul>
+            {c.link}
           </div>
-        </div>
-        <ReviewsCarousel />
+        ))}
       </section>
 
-      {/* CTA VENDEDORES */}
-
-      <section className="mx-auto max-w-7xl px-4 pb-4">
-        <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-card p-6 shadow-card sm:p-12">
-          <div className="aurora opacity-60" aria-hidden="true" />
-          <div className="relative grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
-            <div>
-              <Badge variant="secondary" className="mb-4 gap-1">
-                <Icon.Chart className="h-3 w-3" /> Para vendedores
-              </Badge>
-              <h2 className="font-display text-2xl font-extrabold tracking-tight sm:text-4xl">
-                Venda 24 horas por dia, mesmo dormindo
-              </h2>
-              <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
-                Cadastre o estoque de chaves uma vez e a Lynko entrega automaticamente a cada venda.
-                Acompanhe saldo, avaliações e seguidores no painel e saque via Pix quando quiser.
-              </p>
-              <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
-                <Link to="/dashboard" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full gap-2 sm:w-auto">
-                    <Icon.Layers className="h-5 w-5" /> Abrir minha loja
-                  </Button>
-                </Link>
-                <Link to="/vendedores" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
-                    <Icon.Users className="h-4 w-4" /> Ver vendedores
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="grid gap-3">
-              {[
-                "Estoque automático de chaves e contas",
-                "Anúncios impulsionados aparecem em primeiro",
-                "Perfil com banner, seguidores e avaliações",
-                "Saque via Pix direto no painel",
-              ].map((b) => (
-                <div
-                  key={b}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-background/70 px-4 py-3.5 text-sm backdrop-blur-xl transition hover:border-primary/40"
-                >
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><Icon.Check className="h-4 w-4" /></span>
-                  {b}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTAs POR PERFIL */}
-      <Section
-        title="Qual é o seu perfil?"
-        subtitle="Somos o marketplace no meio: cada lado tem um caminho pronto para começar."
-        icon={<Icon.Users className="h-5 w-5" />}
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          {profileCtas.map((c) => (
-            <SpotlightCard
-              key={c.title}
-              className="flex flex-col p-5 transition duration-300 hover:-translate-y-1 sm:p-6"
-            >
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
-                {c.icon}
-              </span>
-              <p className="mt-4 font-display text-base font-bold">{c.title}</p>
-              <p className="mt-1 flex-1 text-sm text-muted-foreground">{c.desc}</p>
-              <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
-                {c.points.map((p) => (
-                  <li key={p} className="flex items-start gap-2">
-                    <Icon.CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {p}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5">{c.link}</div>
-            </SpotlightCard>
+      <section className="mx-auto max-w-3xl px-4 py-10">
+        <h2 className="mb-6 font-display text-3xl font-light">Perguntas frequentes</h2>
+        <Accordion type="single" collapsible>
+          {FAQ_GROUPS.flatMap((g) => g.items).map((it, i) => (
+            <AccordionItem key={i} value={`q${i}`}>
+              <AccordionTrigger className="text-left text-sm font-medium">{it.q}</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">{it.a}</AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
-      </Section>
-
-      <Section
-        title="FAQ do processo"
-        subtitle="Passo a passo de compra, de venda e das verificações sem letras miúdas."
-        icon={<Icon.Help className="h-5 w-5" />}
-      >
-        <div className="mx-auto max-w-3xl">
-          <Tabs defaultValue={FAQ_GROUPS[0].id}>
-            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
-              {FAQ_GROUPS.map((g) => (
-                <TabsTrigger key={g.id} value={g.id}>
-                  {g.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {FAQ_GROUPS.map((g) => (
-              <TabsContent key={g.id} value={g.id} className="mt-4">
-                <Accordion type="single" collapsible className="w-full">
-                  {g.items.map((f, i) => (
-                    <AccordionItem key={f.q} value={`${g.id}-${i}`} className="mb-2 rounded-2xl border border-border bg-card/60 px-4 transition data-[state=open]:border-primary/40 data-[state=open]:shadow-card">
-                      <AccordionTrigger className="text-left text-sm font-semibold hover:no-underline">
-                        {f.q}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
-                        {f.a}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </Section>
+        </Accordion>
+      </section>
     </div>
   );
 }

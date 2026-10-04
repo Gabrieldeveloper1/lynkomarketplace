@@ -10,7 +10,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/use-auth";
 import { NotificationsMenu } from "@/components/notifications-menu";
 import { AccountMenu } from "@/components/account-menu";
-import { Icon, LogoFull, Sparkle } from "@/components/icons";
+import { Icon, Sparkle } from "@/components/icons";
 
 import { fetchCategories, fetchProducts, fetchSitePages } from "@/lib/marketplace";
 import { PROTECTION_TIERS } from "@/lib/protection";
@@ -21,7 +21,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="group flex shrink-0 items-center" aria-label="Lynko — início">
       <span className="transition-transform duration-300 group-hover:scale-[1.03]">
-        <LogoFull className={compact ? "[&>span:last-child]:hidden" : ""} />
+        <span className="flex items-baseline gap-2 font-display text-[1.6rem] font-normal tracking-tight text-foreground">Lynko{!compact && <span className="font-sans text-[11px] text-muted-foreground">marketplace</span>}</span>
       </span>
     </Link>
   );
@@ -140,7 +140,7 @@ export function SiteHeader() {
 
         <div className="relative mx-auto hidden w-full max-w-xl flex-1 md:block">
           <form onSubmit={submit}>
-            <div className="flex h-11 items-center gap-1 rounded-full border border-border bg-[#1a1918] pl-4 pr-1.5 transition-all focus-within:border-white/25">
+            <div className="flex h-11 items-center gap-1 rounded-full border border-border bg-[#0b0b0c] pl-4 pr-1.5 transition-all focus-within:border-white/25">
               <Icon.Search className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
                 ref={searchRef}
@@ -152,15 +152,15 @@ export function SiteHeader() {
                 className="h-full min-w-0 flex-1 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground"
                 aria-label="Pesquisar"
               />
-              <kbd className="pointer-events-none hidden shrink-0 select-none items-center gap-0.5 rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground lg:flex">
-                ⌘K
+              <kbd className="pointer-events-none hidden shrink-0 select-none items-center gap-0.5 rounded-md border border-border bg-[#262524] px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground lg:flex">
+                Ctrl K
               </kbd>
               <CategoriesMenu categories={categories} activeCat={activeCat} inline />
             </div>
           </form>
 
           {suggestOpen && q.trim().length >= 2 && (
-            <div className="absolute left-0 right-0 top-14 z-50 overflow-hidden rounded-3xl border border-primary/25 bg-popover/95 p-2 shadow-glow backdrop-blur-2xl">
+            <div className="absolute left-0 right-0 top-14 z-50 overflow-hidden rounded-3xl border border-border bg-popover p-2 backdrop-blur-2xl">
               {suggestions.length === 0 ? (
                 <p className="px-3 py-4 text-sm text-muted-foreground">
                   {searching ? "Buscando..." : "Sem resultados para esta pesquisa."}
@@ -192,7 +192,7 @@ export function SiteHeader() {
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={submit}
-                className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-2xl bg-primary/12 px-3 py-2.5 text-xs font-semibold text-primary transition hover:bg-primary/20"
+                className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-2xl bg-[#262524] px-3 py-2.5 text-xs font-medium text-foreground transition hover:bg-[#393836]"
               >
                 Ver todos os resultados para "{q}" <Icon.ArrowRight className="h-3.5 w-3.5" />
               </button>

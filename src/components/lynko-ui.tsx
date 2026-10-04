@@ -1,6 +1,6 @@
 import { useRef, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Icon, Rings, Sparkle } from "@/components/icons";
+import { Icon } from "@/components/icons";
 
 /** Cartão com brilho que acompanha o cursor. */
 export function SpotlightCard({
@@ -20,7 +20,7 @@ export function SpotlightCard({
         el.style.setProperty("--my", `${e.clientY - r.top}px`);
       }}
       className={cn(
-        "spotlight rounded-3xl border border-border bg-card shadow-card transition-colors hover:border-primary/40",
+        "rounded-[1.25rem] border border-border bg-card transition-colors hover:border-white/20",
         className,
       )}
       {...rest}
@@ -62,17 +62,17 @@ export function PageHeader({
     <header className={cn("mb-6 flex flex-wrap items-end justify-between gap-4", className)}>
       <div className="flex min-w-0 items-start gap-4">
         {icon && (
-          <span className="relative hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow sm:grid">
+          <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-full bg-[#262524] text-foreground sm:grid">
             {icon}
           </span>
         )}
         <div className="min-w-0">
           {eyebrow && (
             <p className="eyebrow">
-              <Sparkle className="h-3 w-3" /> {eyebrow}
+              {eyebrow}
             </p>
           )}
-          <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-[1.9rem]">{title}</h1>
+          <h1 className="mt-1 font-display text-3xl font-light tracking-tight sm:text-[2.4rem]">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>}
         </div>
       </div>
@@ -97,10 +97,10 @@ export function SectionTitle({
     <div className="mb-4 flex items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-2.5">
         {icon && (
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">{icon}</span>
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#262524] text-muted-foreground">{icon}</span>
         )}
         <div className="min-w-0">
-          <h3 className="truncate font-display text-[0.95rem] font-bold">{title}</h3>
+          <h3 className="truncate font-sans text-[0.95rem] font-semibold">{title}</h3>
           {hint && <p className="truncate text-[11px] text-muted-foreground">{hint}</p>}
         </div>
       </div>
@@ -116,7 +116,7 @@ export function Panel({
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { children?: ReactNode }) {
   return (
-    <section className={cn("rounded-3xl border border-border bg-card p-5 shadow-card sm:p-6", className)} {...rest}>
+    <section className={cn("rounded-[1.25rem] border border-border bg-card p-5 sm:p-6", className)} {...rest}>
       {children}
     </section>
   );
@@ -124,10 +124,10 @@ export function Panel({
 
 type Tone = "violet" | "green" | "amber" | "pink";
 const TONES: Record<Tone, string> = {
-  violet: "bg-primary/14 text-primary",
-  green: "bg-success/15 text-success",
-  amber: "bg-warning/20 text-warning",
-  pink: "bg-[oklch(0.7_0.24_325/0.16)] text-[oklch(0.72_0.22_325)]",
+  violet: "bg-[#262524] text-foreground",
+  green: "bg-[#262524] text-foreground",
+  amber: "bg-[#262524] text-foreground",
+  pink: "bg-[#262524] text-foreground",
 };
 
 /** Cartão de métrica com ícone e microdetalhe decorativo. */
@@ -149,12 +149,12 @@ export function StatCard({
   const style: CSSProperties = { animationDelay: `${delay}ms` };
   return (
     <SpotlightCard className="animate-rise overflow-hidden p-5" style={style}>
-      <Rings className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 text-primary opacity-40" />
+      
       <div className="relative flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
-        <span className={cn("grid h-9 w-9 place-items-center rounded-xl", TONES[tone])}>{icon}</span>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <span className={cn("grid h-8 w-8 place-items-center rounded-full bg-[#262524] text-muted-foreground", "")}>{icon}</span>
       </div>
-      <div className="relative mt-3 font-display text-[1.65rem] font-extrabold leading-none tracking-tight">{value}</div>
+      <div className="relative mt-3 font-display text-4xl font-light leading-none tracking-tight">{value}</div>
       {hint && <p className="relative mt-2 text-[11px] leading-snug text-muted-foreground">{hint}</p>}
     </SpotlightCard>
   );
@@ -177,13 +177,12 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-card/50 px-6 py-12 text-center",
+        "relative overflow-hidden rounded-[1.25rem] border border-dashed border-primary/30 bg-card/50 px-6 py-12 text-center",
         className,
       )}
     >
       <div className="absolute inset-0 bg-dots opacity-60 [mask-image:radial-gradient(circle_at_center,#000,transparent_70%)]" aria-hidden="true" />
-      <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
-        <span className="absolute inset-0 animate-pulse-ring rounded-2xl bg-primary/40" aria-hidden="true" />
+      <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#262524] text-foreground">
         <span className="relative">{icon ?? <Icon.Sparkles className="h-7 w-7" />}</span>
       </div>
       <p className="relative mt-5 font-display text-lg font-bold">{title}</p>
